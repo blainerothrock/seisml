@@ -6,6 +6,8 @@ import numpy as np
 import copy
 import random
 
+from seisml.utility.transforms import ButterworthPassFilter
+
 class EarthquakeDataset(Dataset):
     def __init__(self, folder, transforms='demean', length=20000, split='', augmentations='',
                  filter_labels=('negative', 'positive'), mode='train'):
@@ -118,24 +120,28 @@ class EarthquakeDataset(Dataset):
 
     @staticmethod
     def pre_transform(sac, transforms):
-        data = []
+        data = {'raw': sac}
         if 'demean' in transforms:
-            sac.detrend(type='demean')
-        if 'raw' in transforms:
-            data.append(sac)
-        if 'bandpass' in transforms:
-            sac_copy = copy.deepcopy(sac)
-            sac_copy.filter('bandpass', freqmin=2, freqmax=8, corners=2, zerophase=True)
-            data.append(sac_copy)
-        if 'highpass' in transforms:
-            sac_copy = copy.deepcopy(sac)
-            sac_copy.filter('highpass', freq=2)
-            data.append(sac_copy)
-        if 'lowpass' in transforms:
-            sac_copy = copy.deepcopy(sac)
-            sac_copy.filter('lowpass', freq=2)
-            data.append(sac_copy)
-        return data
+            data['raw'].detrend(type='demean')
+        # if 'raw' in transforms:
+        #     data.append(sac)
+
+        tfm = ButterworthPassFilter('bandpass', min_freq=2.0, max_freq=8.0, zerophase=True)
+        data = tfm(data)
+
+        # if 'bandpass' in transforms:
+        #     sac_copy = copy.deepcopy(sac)
+        #     sac_copy.filter('bandpass', freqmin=2, freqmax=8, corners=2, zerophase=True)
+        #     data.append(sac_copy)
+        # if 'highpass' in transforms:
+        #     sac_copy = copy.deepcopy(sac)
+        #     sac_copy.filter('highpass', freq=2)
+        #     data.append(sac_copy)
+        # if 'lowpass' in transforms:
+        #     sac_copy = copy.deepcopy(sac)
+        #     sac_copy.filter('lowpass', freq=2)
+        #     data.append(sac_copy)
+        return [data['bandpass']]
 
     @staticmethod
     def post_transform(data, transforms):
