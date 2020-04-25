@@ -2,7 +2,9 @@
 a continuous machine learning experimentation model for seismic data
 
 .. or at least that is the end goal. This is a ongoing project to build a continuously training model that can continuously run
-scientific machine learning experiments on seismic data. Progress can be tracked [here]().
+scientific machine learning experiments on seismic data. Progress can be tracked [here](https://github.com/users/blainerothrock/projects/1).
+
+[Docs](docs/README.md)
 
 ## Inspiration 
 The inspiration and starting codebase for this model is from the Seismological Research Letters paper 
