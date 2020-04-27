@@ -30,4 +30,4 @@ jobs:
         python-version: 3.7
         
     - name: Test
-      run: pip install -U pytest && pytest
+      run: pytest
