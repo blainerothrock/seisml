@@ -1,4 +1,4 @@
-from . import TransformException
+from . import TransformException, BaseTransform
 from enum import Enum
 import numpy as np
 
@@ -6,7 +6,7 @@ class AugmentationType(Enum):
     AMPLITUDE = 0
     NOISE = 1
 
-class Augment:
+class Augment(BaseTransform):
     """
     randomly add amplitude or noise to data
 
@@ -32,6 +32,8 @@ class Augment:
             output='augmented',
             inplace=False):
 
+        super().__init__(source, output, inplace)
+
         if not isinstance(augmentation_types, AugmentationType):
             raise TransformException(f'augmentation_types must be a AugmentationType, got {type(AugmentationType)}')
         if not isinstance(probability, float):
@@ -42,15 +44,8 @@ class Augment:
         self.augmentation_type = augmentation_types
         self.probability = probability
 
-        self.source = source
-        self.output = output
-        self.inplace = inplace
-
     def __call__(self, data):
-        if not isinstance(data, dict):
-            raise TransformException(f'data must be of type dict, got {type(data)}')
-        if self.source not in data.keys():
-            raise TransformException(f'source must be a key of data, got {data.keys()}', ', '.join(data.keys()))
+        super().__call__(data)
 
         augmented = data[self.source].copy()
 
@@ -66,12 +61,7 @@ class Augment:
                 noise = np.random.normal(loc=mean, scale=std, size=data.shape)
                 augmented += noise
 
-        if self.inplace:
-           data[self.source] = augmented
-        else:
-            data[self.output] = augmented
-
-        return data
+        return super().update(data, augmented)
 
     def __repr__(self):
         return (

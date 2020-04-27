@@ -1,4 +1,4 @@
-from . import TransformException
+from . import TransformException, BaseTransform
 import obspy
 from enum import Enum
 
@@ -10,7 +10,7 @@ class DetrendType(str, Enum):
     SPLINE = 'spline'
 
 
-class DetrendFilter:
+class DetrendFilter(BaseTransform):
     """
     remove a trend from seismic data
 
@@ -34,30 +34,20 @@ class DetrendFilter:
             output='detrended',
             inplace=False):
 
+        super().__init__(source, output, inplace)
+
         if not isinstance(detrend_type, DetrendType):
             raise TransformException(f'detrend_type must be a DetrendType, got {type(detrend_type)}')
 
         self.detrend_type = detrend_type
 
-        self.source = source
-        self.output = output
-        self.inplace = inplace
-
     def __call__(self, data):
-        if not isinstance(data, dict):
-            raise TransformException(f'data must be of type dict, got {type(data)}')
-        if self.source not in data.keys():
-            raise TransformException(f'source must be a key of data, got {data.keys()}', ', '.join(data.keys()))\
+        super().__call__(data)
 
         detrended = data[self.source].copy()
         detrended.detrend(type=self.detrend_type.value)
 
-        if self.inplace:
-            data[self.source] = detrended
-        else:
-            data[self.output] = detrended
-
-        return data
+        return super().update(data, detrended)
 
     def __repr__(self):
         return (

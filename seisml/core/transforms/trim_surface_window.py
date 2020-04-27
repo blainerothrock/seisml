@@ -1,6 +1,6 @@
-from . import TransformException
+from . import TransformException, BaseTransform
 
-class TrimSurfaceWindow:
+class TrimSurfaceWindow(BaseTransform):
     """
     simple surface window trim based on velocity
 
@@ -25,6 +25,8 @@ class TrimSurfaceWindow:
             output='trimmed',
             inplace=False):
 
+        super().__init__(source, output, inplace)
+
         if not isinstance(start_velocity, float):
             raise TransformException(f'start_velocity must be a float, got {type(start_velocity)}')
         if not isinstance(end_velocity, float):
@@ -32,15 +34,9 @@ class TrimSurfaceWindow:
 
         self.start_velocity = start_velocity
         self.end_velocity = end_velocity
-        self.source = source
-        self.output = output
-        self.inplace = inplace
 
     def __call__(self, data):
-        if not isinstance(data, dict):
-            raise TransformException(f'data must be of type dict, got {type(data)}')
-        if self.source not in data.keys():
-            raise TransformException(f'source must be a key of data, got {data.keys()}', ', '.join(data.keys()))
+        super().__call__(data)
 
         trimmed = data[self.source].copy()
 
@@ -49,12 +45,7 @@ class TrimSurfaceWindow:
         t = trimmed.stats.starttime
         trimmed.trim(t + start, t + end, nearest_sample=False)
 
-        if self.inplace:
-            data[self.source] = trimmed
-        else:
-            data[self.output] = trimmed
-
-        return data
+        return super().update(data, trimmed)
 
     def __repr__(self):
         return (

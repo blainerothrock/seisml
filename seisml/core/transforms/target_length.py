@@ -1,7 +1,7 @@
-from . import TransformException
+from . import TransformException, BaseTransform
 import numpy as np
 
-class TargetLength:
+class TargetLength(BaseTransform):
     """
     trim or pad data to match a target input length
 
@@ -25,21 +25,17 @@ class TargetLength:
             source='raw',
             output='normalized_length',
             inplace=False):
+
+        super().__init__(source, output, inplace)
+
         if not isinstance(length, int):
             raise TransformException(f'length must be a int, got {type(len())}')
 
         self.target_length = length
         self.random_offset = random_offset
 
-        self.source = source
-        self.output = output
-        self.inplace = inplace
-
     def __call__(self, data):
-        if not isinstance(data, dict):
-            raise TransformException(f'data must be of type dict, got {type(data)}')
-        if self.source not in data.keys():
-            raise TransformException(f'source must be a key of data, got {data.keys()}', ', '.join(data.keys()))
+        super().__call__(data)
 
         normalized_length = data[self.source].copy()
 
@@ -56,12 +52,7 @@ class TargetLength:
         normalized_length = np.pad(normalized_length, pad_tuple, mode='constant')
         normalized_length = normalized_length[:, offset:offset + self.target_length]
 
-        if self.inplace:
-            data[self.source] = normalized_length
-        else:
-            data[self.output] = normalized_length
-
-        return data
+        return super().update(data, normalized_length)
 
     def __repr__(self):
         return (

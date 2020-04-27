@@ -1,5 +1,5 @@
 import obspy
-from . import TransformException
+from . import TransformException, BaseTransform
 from enum import Enum
 
 class FilterType(str, Enum):
@@ -9,7 +9,7 @@ class FilterType(str, Enum):
     LOWPASS = 'lowpass'
 
 
-class ButterworthPassFilter:
+class ButterworthPassFilter(BaseTransform):
     """
     standard seismic filtering on a Stream or Trace object
 
@@ -42,6 +42,8 @@ class ButterworthPassFilter:
             output='filtered',
             inplace=False):
 
+        super().__init__(source, output, inplace)
+
         self._filters = ['highpass', 'lowpass', 'bandpass', 'bandstop']
 
         if not isinstance(filter_type, FilterType):
@@ -61,20 +63,11 @@ class ButterworthPassFilter:
         self.corners = corners
         self.zerophase = zerophase
 
-        self.source = source
-        self.output = output
-        self.inplace = inplace
 
     def __call__(self, data):
-        if not isinstance(data, dict):
-            raise TransformException(f'data must be of type dict, got {type(data)}')
-        if self.source not in data.keys():
-            raise TransformException(f'source must be a key of data, got {data.keys()}', ', '.join(data.keys()))
+        super().__call__(data)
 
         transformed = data[self.source].copy()
-
-        # if not isinstance(transformed, obspy.core.stream.Stream) xor not isinstance(transformed, obspy.core.trace.Trace):
-        #     raise TransformException(f'data source must be a obspy Stream or Trace, got {type(transformed)}')
 
         if self.filter_type in [FilterType.BANDPASS, FilterType.BANDSTOP]:
             transformed.filter(
@@ -92,12 +85,7 @@ class ButterworthPassFilter:
                 zerophase=self.zerophase
             )
 
-        if self.inplace:
-            data[self.source] = transformed
-        else:
-            data[self.output] = transformed
-
-        return data
+        return super().update(data, transformed)
 
     def __repr__(self):
         return (
