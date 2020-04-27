@@ -1,4 +1,6 @@
 # SeisML
+![Test](https://github.com/blainerothrock/seisml/workflows/Test/badge.svg)
+
 a continuous machine learning experimentation model for seismic data
 
 .. or at least that is the end goal. This is a ongoing project to build a continuously training model that can continuously run

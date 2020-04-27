@@ -19,15 +19,20 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - name: Setup Python
+      uses: actions/setup-python@v1.2.0
+      with:
+        python-version: 3.7
     - uses: actions/checkout@v2
-
     - name: Setup Miniconda
       uses: goanpeca/setup-miniconda@v1.1.2
       with:
         environment-file: environment.yml
         activate-environment: seisml
         python-version: 3.7
-        
-    - name: Test
-      run: pytest
+        auto-update-conda: true
+    - name: pytest
+      shell: bash -l {0}
+      run: |
+        conda install pytest -y
+        python -m pytest

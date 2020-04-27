@@ -1,12 +1,10 @@
 from torch.utils.data import Dataset
 import os
-import obspy
 import pickle
 import numpy as np
-import copy
 import random
 
-from seisml.utility.transforms import ButterworthPassFilter
+from seisml.core.transforms import ButterworthPassFilter
 
 class EarthquakeDataset(Dataset):
     def __init__(self, folder, transforms='demean', length=20000, split='', augmentations='',
