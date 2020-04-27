@@ -1,4 +1,4 @@
-name: seismic_classifier
+name: seisml
 channels:
   - pytorch
   - conda-forge
