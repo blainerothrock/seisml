@@ -32,6 +32,4 @@ jobs:
         python-version: 3.7
         auto-update-conda: true
     - name: pytest
-      run: |
-        pip install pytest
-        pytest
+      run: python -m pytest
