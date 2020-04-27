@@ -30,5 +30,8 @@ jobs:
         environment-file: environment.yml
         activate-environment: seisml
         python-version: 3.7
+        auto-update-conda: true
     - name: pytest
-      run: pytest
+      run: |
+        pip install pytest
+        pytest
