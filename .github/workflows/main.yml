@@ -33,5 +33,5 @@ jobs:
         auto-update-conda: true
     - name: pytest
       run: |
-        conda install pytest -y
-        python -m pytest
+        conda install pytest, pytest-cov -y
+        python -m pytest --cov=seisml --cov-report=xml --cov-report=html

@@ -34,8 +34,13 @@ class Augment(BaseTransform):
 
         super().__init__(source, output, inplace)
 
-        if not isinstance(augmentation_types, AugmentationType):
-            raise TransformException(f'augmentation_types must be a AugmentationType, got {type(AugmentationType)}')
+        if not isinstance(augmentation_types, list):
+            raise TransformException(f'augmentation_types must be a list, got {type(AugmentationType)}')
+
+        for t in augmentation_types:
+            if not isinstance(t, AugmentationType):
+                raise TransformException(f'augmentation type must be a AugmentationType, got {type(t)}')
+
         if not isinstance(probability, float):
             raise TransformException(f'probability must be a float, got {type(probability)}')
         if probability > 1.0 or probability < 0.0:
@@ -52,14 +57,14 @@ class Augment(BaseTransform):
         if np.random.random() < self.probability:
             if AugmentationType.AMPLITUDE in self.augmentation_type:
                 start_gain, end_gain = [np.random.uniform(0, 2), np.random.uniform(0, 2)]
-                amplitude_mod = np.linspace(start_gain, end_gain, num=data.shape[-1])
-                augmented *= amplitude_mod
+                amplitude_mod = np.linspace(start_gain, end_gain, num=augmented.data.shape[-1])
+                augmented.data *= amplitude_mod
 
             if AugmentationType.NOISE in self.augmentation_type:
-                std = data.std() * np.random.uniform(1, 2)
-                mean = data.mean()
-                noise = np.random.normal(loc=mean, scale=std, size=data.shape)
-                augmented += noise
+                std = data[self.source].data.std() * np.random.uniform(1, 2)
+                mean = data[self.source].data.mean()
+                noise = np.random.normal(loc=mean, scale=std, size=augmented.data.shape)
+                augmented.data += noise
 
         return super().update(data, augmented)
 
