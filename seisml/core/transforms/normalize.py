@@ -21,12 +21,15 @@ class Normalize(BaseTraceTransform):
     def __call__(self, data):
         super().__call__(data)
 
-        normalized = data[self.source].copy()
+        trace = data[self.source].copy()
+        normalized = trace.data
 
-        normalized -= data.mean()
-        normalized /= data.std() + 1e-6
+        normalized -= normalized.mean()
+        normalized /= normalized.std() + 1e-6
 
-        return super().update(data, normalized)
+        trace.data = normalized
+
+        return super().update(data, trace)
 
     def __repr__(self):
         return f'{self.__class__.__name__}()'

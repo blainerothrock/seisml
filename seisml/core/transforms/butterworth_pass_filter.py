@@ -33,7 +33,7 @@ class ButterworthPassFilter(BaseTraceTransform):
 
     def __init__(
             self,
-            filter_type='bandpass',
+            filter_type=FilterType.BANDPASS,
             min_freq=0.0,
             max_freq=10.0,
             corners=2,
