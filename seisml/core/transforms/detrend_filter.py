@@ -1,4 +1,4 @@
-from . import TransformException, BaseTransform
+from . import TransformException, BaseTraceTransform
 import obspy
 from enum import Enum
 
@@ -10,7 +10,7 @@ class DetrendType(str, Enum):
     SPLINE = 'spline'
 
 
-class DetrendFilter(BaseTransform):
+class DetrendFilter(BaseTraceTransform):
     """
     remove a trend from seismic data
 

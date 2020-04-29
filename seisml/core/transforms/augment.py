@@ -1,4 +1,4 @@
-from . import TransformException, BaseTransform
+from . import TransformException, BaseTraceTransform
 from enum import Enum
 import numpy as np
 
@@ -6,7 +6,7 @@ class AugmentationType(Enum):
     AMPLITUDE = 0
     NOISE = 1
 
-class Augment(BaseTransform):
+class Augment(BaseTraceTransform):
     """
     randomly add amplitude or noise to data
 

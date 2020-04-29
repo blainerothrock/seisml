@@ -1,8 +1,8 @@
-from . import TransformException, BaseTransform
+from . import TransformException, BaseTraceTransform
 import numpy as np
 
 
-class Normalize(BaseTransform):
+class Normalize(BaseTraceTransform):
     """
     normalize seismic data using whiten transform
 

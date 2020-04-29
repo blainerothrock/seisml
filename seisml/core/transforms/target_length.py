@@ -1,7 +1,7 @@
-from . import TransformException, BaseTransform
+from . import TransformException, BaseTraceTransform
 import numpy as np
 
-class TargetLength(BaseTransform):
+class TargetLength(BaseTraceTransform):
     """
     trim or pad data to match a target input length
 

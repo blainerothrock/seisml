@@ -1,6 +1,6 @@
-from . import TransformException, BaseTransform
+from . import TransformException, BaseTraceTransform
 
-class TrimSurfaceWindow(BaseTransform):
+class TrimSurfaceWindow(BaseTraceTransform):
     """
     simple surface window trim based on velocity
 

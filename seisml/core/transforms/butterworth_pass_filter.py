@@ -1,5 +1,5 @@
 import obspy
-from . import TransformException, BaseTransform
+from . import TransformException, BaseTraceTransform
 from enum import Enum
 
 class FilterType(str, Enum):
@@ -9,7 +9,7 @@ class FilterType(str, Enum):
     LOWPASS = 'lowpass'
 
 
-class ButterworthPassFilter(BaseTransform):
+class ButterworthPassFilter(BaseTraceTransform):
     """
     standard seismic filtering on a Stream or Trace object
 
@@ -37,7 +37,7 @@ class ButterworthPassFilter(BaseTransform):
             min_freq=0.0,
             max_freq=10.0,
             corners=2,
-            zerophase=True,
+            zerophase=False,
             source='raw',
             output='filtered',
             inplace=False):
