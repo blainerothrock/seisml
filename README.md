@@ -1,5 +1,6 @@
 # SeisML
 ![Test](https://github.com/blainerothrock/seisml/workflows/Test/badge.svg)
+[![codecov](https://codecov.io/gh/blainerothrock/seisml/branch/master/graph/badge.svg)](https://codecov.io/gh/blainerothrock/seisml)
 
 a continuous machine learning experimentation model for seismic data
 
