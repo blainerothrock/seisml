@@ -3,6 +3,7 @@ from seisml.core.transforms import Normalize, TransformException
 import obspy
 import numpy as np
 
+
 class TestNormalize:
 
     @pytest.fixture
@@ -22,3 +23,9 @@ class TestNormalize:
         out = data[tf.output].data
 
         assert np.isclose(out.mean(), 0), 'mean should be zero'
+        assert np.isclose(out.std(), 1), 'standard deviation should be 1'
+
+    def test_print(self):
+        string = str(Normalize())
+        assert string is not None
+        assert string == 'Normalize()'

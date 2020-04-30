@@ -4,7 +4,7 @@ import numpy as np
 
 class Normalize(BaseTraceTransform):
     """
-    normalize seismic data using whiten transform
+    normalize seismic data using whiten transform (0 mean, 1 std)
 
     Args:
         source (string): the data source to filter, default: raw
