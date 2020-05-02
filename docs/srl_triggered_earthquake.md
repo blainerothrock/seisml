@@ -8,7 +8,7 @@ the development of this project.
 
 ### Download Triggered Earthquake data
 * Download the raw triggered earthquake data [here](https://blainerothrock-public.s3.us-east-2.amazonaws.com/seisml/triggered_earthquakes.tar.gz) (3.87GB).
-* Highly recommend to verify the download with [triggered_earthquakes.md5](triggered_earthquakes.md5)
+* Highly recommend to verify the download with [triggered_earthquakes.md5](../seisml/utility/checksums/triggered_earthquakes.md5)
 ```bash
 md5sum -c triggered_earthquakes.md5
 
