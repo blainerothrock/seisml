@@ -6,14 +6,6 @@ import numpy as np
 
 class TestTargetLength:
 
-    @pytest.fixture
-    def signal(self):
-        np.random.seed(1234)
-        t = np.linspace(0, 20, 1000)
-        x = t + np.random.normal(size=1000)
-
-        return obspy.Trace(x)
-
     def test_trim(self, signal):
         target_len = 500
         tf = TargetLength(target_length=target_len)

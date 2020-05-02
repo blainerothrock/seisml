@@ -6,3 +6,4 @@ from .detrend_filter import DetrendFilter, DetrendType
 from .augment import Augment, AugmentationType
 from .normalize import Normalize
 from .target_length import TargetLength
+from .to_tensor import ToTensor

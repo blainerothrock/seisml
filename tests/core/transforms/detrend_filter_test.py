@@ -5,14 +5,6 @@ import numpy as np
 
 class TestDetrendFilter:
 
-    @pytest.fixture
-    def signal_with_linear(self):
-        np.random.seed(1234)
-        t = np.linspace(0, 5, 100)
-        x = t + np.random.normal(size=100)
-
-        return obspy.Trace(x)
-
     def test_linear(self, signal_with_linear):
 
         tf = DetrendFilter(detrend_type=DetrendType.LINEAR)

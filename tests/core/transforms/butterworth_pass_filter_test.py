@@ -6,16 +6,6 @@ import numpy as np
 
 class TestButterworthPassFilter:
 
-    @pytest.fixture
-    def signal(self):
-        np.random.seed(1234)
-        time_step = 0.02
-        period = 5.
-        time_vec = np.arange(0, 20, time_step)
-        sig = (np.sin(2 * np.pi / period * time_vec)
-               + 0.5 * np.random.randn(time_vec.size))
-        return obspy.Trace(sig)
-
     def test_lowpass(self, signal):
         filter_type = FilterType.LOWPASS
         tf = ButterworthPassFilter(filter_type=filter_type, max_freq=0.1, corners=1)
