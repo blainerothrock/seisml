@@ -7,4 +7,6 @@ from .augment import Augment, AugmentationType
 from .normalize import Normalize
 from .target_length import TargetLength
 from .to_tensor import ToTensor
+from .sample import Resample, Interpolate, DownSample
+from .custom_trace_transform import CustomTraceTransform
 from .compose import Compose
