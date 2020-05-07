@@ -11,16 +11,17 @@ class TestTriggeredEarthquake:
 
     def test_download_and_preproces(self):
         ds = TriggeredEarthquake(
-            data_dir=os.path.expanduser('~/.seisml/data/sample_data'),
+            data_dir=os.path.expanduser('~/.seisml/data/sample_data/raw'),
             force_download=False,
             download=download_sample_data
         )
 
+        assert len(ds) > 0, 'files should exist'
         assert os.path.isdir(os.path.expanduser('~/.seisml/data/sample_data/')), 'data should exist'
 
     def test_get_item(self):
         ds = TriggeredEarthquake(
-            data_dir=os.path.expanduser('~/.seisml/data/sample_data'),
+            data_dir=os.path.expanduser('~/.seisml/data/sample_data/raw'),
             force_download=False,
             download=download_sample_data
         )

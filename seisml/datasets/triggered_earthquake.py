@@ -118,9 +118,9 @@ class TriggeredEarthquake(Dataset):
         self.data_dir = data_dir
         self.transform = transform
 
-        self.quake_dirs = [os.path.join(data_dir, x) for x in os.listdir(data_dir)]
+        quake_dirs = [os.path.join(data_dir, x) for x in os.listdir(data_dir)]
         self.files = []
-        for qd in self.quake_dirs:
+        for qd in list(filter(lambda q: os.path.isdir(q), quake_dirs)):
             class_dirs = [os.path.join(qd, x) for x in os.listdir(qd) if x in labels]
             for cd in class_dirs:
                 sacs = [os.path.join(cd, f) for f in os.listdir(cd) if ('.SAC' in f or '.sac' in f)]
