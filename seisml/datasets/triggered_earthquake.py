@@ -1,10 +1,65 @@
-import os
+import os, random
 from torch.utils.data import Dataset
 import numpy as np
 import obspy
 from multiprocessing import cpu_count
 from seisml.utility.download_data import download_triggered_earthquake_data
 from seisml.utility.utils import parallel_process, save_file
+from seisml.core.transforms import Resample, \
+    ButterworthPassFilter, FilterType, Compose, \
+    ToTensor, Augment, AugmentationType, TargetLength
+
+
+class TriggerEarthquakeTransform(Compose):
+    """
+        Instance to store params for the TriggeredEarthquake dataset
+
+        Args:
+            sampling_rate: (float): used for resample
+            max_freq: (float): max frequency for bandpass filter
+            min_freq: (float): min frequency for bandpass filter
+            corner: (int): corners for bandpass filter
+            aug_types: (list): augmentation types
+            aug_prob: (float): augmentation probability
+            target_length: (int): length of each sample
+    """
+
+    def __init__(
+            self,
+            sampling_rate=20.0,
+            max_freq=2.0,
+            min_freq=8.0,
+            corner=2,
+            aug_types=[AugmentationType.AMPLITUDE, AugmentationType.NOISE],
+            aug_prob=0.5,
+            target_length=20000):
+
+        self.sampling_rate = sampling_rate
+        self.max_freq = max_freq
+        self.min_freq = min_freq
+        self.corner = corner
+        self.augmentation_types = aug_types
+        self.augmentation_probability = aug_prob
+        self.target_length = target_length
+
+        transforms = [
+            Resample(sampling_rate=self.sampling_rate),
+            ButterworthPassFilter(
+                filter_type=FilterType.BANDPASS,
+                min_freq=self.max_freq,
+                max_freq=self.min_freq,
+                corners=self.corner,
+                zerophase=True
+            ),
+            Augment(augmentation_types=self.augmentation_types, probability=self.augmentation_probability),
+            TargetLength(target_length=self.target_length, random_offset=True),
+            ToTensor()
+        ]
+
+        source = 't'
+        inplace = True
+
+        super().__init__(transforms, source=source, inplace=inplace)
 
 
 class TriggeredEarthquake(Dataset):
@@ -12,72 +67,82 @@ class TriggeredEarthquake(Dataset):
     Dataset for Triggered Earthquakes as refferenced in Automating the Detection of Dynamically Triggered Earthquakes
     via a Deep Metric Learning Algorithm
 
+    data file structure:
+        data_dir/raw/
+            earthquake1/
+                positive/
+                    file1.sac
+                    file2.sac
+                    ...
+                negative/
+                    file1.sac
+                    file2.sac
+                    ...
+                more_optional_labels_like_chaos/
+                    more_files.sac
+                    ...
+            earthquake2/
+                positive/
+                    file1.sac
+                    file2.sac
+                    ...
+                negative/
+                    file1.sac
+                    file2.sac
+                    ...
+                more_optional_labels_like_chaos/
+                    more_files.sac
+                    ...
+            ...
+
+
     Args:
-        folder: (str): folder where raw triggered earthquake data exists
+        data_dir: (str): folder where raw triggered earthquake data exists
         force_download: (Bool): [optional] if data already exists, re-download it, default: False
         download: (function): [optional] download method, default: download_triggered_earthquake_data
+        labels: (list): labels to use from the directory structure, default: ['positive', 'negative']
     """
 
     def __init__(
             self,
-            folder='~/.seisml/data/triggered_earthquakes',
+            data_dir=os.path.expanduser('~/.seisml/data/triggered_earthquakes'),
             force_download=False,
-            download=download_triggered_earthquake_data):
+            download=download_triggered_earthquake_data,
+            labels=['positive', 'negative'],
+            transform=TriggerEarthquakeTransform()):
 
-        if not os.path.isdir(os.path.expanduser(folder)) or force_download:
+        if not os.path.isdir(os.path.expanduser(data_dir)) or force_download:
             download(force=force_download)
 
-        if not os.path.isdir(os.path.expanduser(folder + '/prepared')):
-            self.preprocess(os.path.expanduser(folder))
+        self.labels = labels
+        self.data_dir = data_dir
+        self.transform = transform
 
-    def process_file(self, earthquake_file, directory, target_directory, label):
-        earthquake = obspy.read(os.path.join(directory, earthquake_file))[0]
-        earthquake.resample(sampling_rate=20, window='hanning', no_filter=True, strict_length=False)
-        data_dict = {}
+        self.quake_dirs = [os.path.join(data_dir, x) for x in os.listdir(data_dir)]
+        self.files = []
+        for qd in self.quake_dirs:
+            class_dirs = [os.path.join(qd, x) for x in os.listdir(qd) if x in labels]
+            for cd in class_dirs:
+                sacs = [os.path.join(cd, f) for f in os.listdir(cd) if ('.SAC' in f or '.sac' in f)]
+                self.files += sacs
 
-        data_dict['data'] = earthquake
-        data_dict['label'] = label
-        data_dict['name'] = directory.split('/')[-2]
+        random.shuffle(self.files)
 
-        save_file(
-            os.path.join(
-                target_directory,
-                '%s_%s_%s.p' % (label, data_dict['name'],
-                                earthquake_file)
-            ),
-            data_dict
-        )
+    def __len__(self):
+        return len(self.files)
 
-    def load_data(self, directory, label, target_directory):
-        if not os.path.exists(directory):
-            return []
+    def __getitem__(self, i):
+        file = self.files[i]
+        data = obspy.read(file)[0]
+        label = file.split('/')[-2]
 
-        earthquake_files = []
-        for file in os.listdir(directory):
-            if not ('.SAC' in file or '.sac' in file): continue
-            print(file)
-            earthquake_files.append({
-                'earthquake_file': file,
-                'directory': directory,
-                'target_directory': target_directory,
-                'label': label
-            })
+        # one hot encode labels
+        one_hot = np.zeros(len(self.labels))
+        lbl_idx = self.labels.index(label)
+        one_hot[lbl_idx] = 1
 
-        print(earthquake_files)
+        data = {'t': data}
 
-        if len(earthquake_files) == 0:
-            return []
+        self.transform(data)
 
-        parallel_process(earthquake_files, self.process_file, use_kwargs=True, n_jobs=min(cpu_count() - 1, 1))
-
-    def preprocess(self, folder, raw_dir='raw'):
-        quake_folders = [os.path.join(folder + '/' + raw_dir, x) for x in os.listdir(folder + '/' + raw_dir)]
-        accepted_labels = ['positive', 'negative']
-        output_directory = folder + '/prepared'
-        os.makedirs(output_directory, exist_ok=True)
-
-        for qf in quake_folders:
-            if not os.path.isdir(qf): continue
-            labels = labels = [x for x in os.listdir(qf) if x in accepted_labels]
-            for l in labels:
-                self.load_data(os.path.join(qf, l), l, output_directory)
+        return data['t'], one_hot

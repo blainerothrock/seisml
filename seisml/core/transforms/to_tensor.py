@@ -19,7 +19,7 @@ class ToTensor(BaseTraceTransform):
         data: a modified dictionary with filters applied
     """
 
-    def __init__(self, device, source='raw', output='tensor', inplace=False):
+    def __init__(self, device=torch.device('cpu'), source='raw', output='tensor', inplace=False):
         super().__init__(source, output, inplace)
 
         if not isinstance(device, torch.device):
