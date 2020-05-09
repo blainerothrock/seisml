@@ -1,4 +1,4 @@
-name: seismic_classifier
+name: seisml
 channels:
   - pytorch
   - conda-forge
@@ -143,5 +143,5 @@ dependencies:
     - torch-summary==1.2.0
     - tqdm==4.45.0
     - urllib3==1.25.9
-prefix: /home/b/anaconda3/envs/seismic_classifier
+prefix: /home/b/anaconda3/envs/seis
 
