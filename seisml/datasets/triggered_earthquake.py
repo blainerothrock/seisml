@@ -10,56 +10,30 @@ from seisml.core.transforms import Resample, \
     ToTensor, Augment, AugmentationType, TargetLength
 
 
-class TriggerEarthquakeTransform(Compose):
-    """
-        Instance to store params for the TriggeredEarthquake dataset
+def triggered_earthquake_transform(
+        sampling_rate=20.0,
+        max_freq=2.0,
+        min_freq=8.0,
+        corner=2,
+        aug_types=[AugmentationType.AMPLITUDE, AugmentationType.NOISE],
+        aug_prob=0.5,
+        target_length=20000):
 
-        Args:
-            sampling_rate: (float): used for resample
-            max_freq: (float): max frequency for bandpass filter
-            min_freq: (float): min frequency for bandpass filter
-            corner: (int): corners for bandpass filter
-            aug_types: (list): augmentation types
-            aug_prob: (float): augmentation probability
-            target_length: (int): length of each sample
-    """
+    transforms = [
+        Resample(sampling_rate=sampling_rate),
+        ButterworthPassFilter(
+            filter_type=FilterType.BANDPASS,
+            min_freq=max_freq,
+            max_freq=min_freq,
+            corners=corner,
+            zerophase=True
+        ),
+        Augment(augmentation_types=aug_types, probability=aug_prob),
+        TargetLength(target_length=target_length, random_offset=True),
+        ToTensor()
+    ]
 
-    def __init__(
-            self,
-            sampling_rate=20.0,
-            max_freq=2.0,
-            min_freq=8.0,
-            corner=2,
-            aug_types=[AugmentationType.AMPLITUDE, AugmentationType.NOISE],
-            aug_prob=0.5,
-            target_length=20000):
-
-        self.sampling_rate = sampling_rate
-        self.max_freq = max_freq
-        self.min_freq = min_freq
-        self.corner = corner
-        self.augmentation_types = aug_types
-        self.augmentation_probability = aug_prob
-        self.target_length = target_length
-
-        transforms = [
-            Resample(sampling_rate=self.sampling_rate),
-            ButterworthPassFilter(
-                filter_type=FilterType.BANDPASS,
-                min_freq=self.max_freq,
-                max_freq=self.min_freq,
-                corners=self.corner,
-                zerophase=True
-            ),
-            Augment(augmentation_types=self.augmentation_types, probability=self.augmentation_probability),
-            TargetLength(target_length=self.target_length, random_offset=True),
-            ToTensor()
-        ]
-
-        source = 't'
-        inplace = True
-
-        super().__init__(transforms, source=source, inplace=inplace)
+    return Compose(transforms, source='t', inplace=True)
 
 
 class TriggeredEarthquake(Dataset):
@@ -109,7 +83,7 @@ class TriggeredEarthquake(Dataset):
             force_download=False,
             download=download_triggered_earthquake_data,
             labels=['positive', 'negative'],
-            transform=TriggerEarthquakeTransform()):
+            transform=triggered_earthquake_transform()):
 
         if not os.path.isdir(os.path.expanduser(data_dir)) or force_download:
             download(force=force_download)

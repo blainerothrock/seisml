@@ -3,7 +3,7 @@ import os
 import torch
 import numpy as np
 from seisml.utility.download_data import download_sample_data
-from seisml.datasets.triggered_earthquake import TriggeredEarthquake
+from seisml.datasets import TriggeredEarthquake
 from torch.utils.data import DataLoader
 
 

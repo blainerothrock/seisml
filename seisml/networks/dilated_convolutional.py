@@ -54,7 +54,6 @@ class DilatedConvolutional(nn.Module):
                 )
             )
             self.main.add_module(str(i) + '_bn2', nn.BatchNorm1d(num_channels))
-            # self.main.add_module(str(i) + '_in2', nn.InstanceNorm1d(num_channels))
             self.main.add_module(str(i) + '_relu', nn.ReLU())
             self.main.add_module(str(i) + '_maxpool', nn.MaxPool1d(2))
 
@@ -66,5 +65,4 @@ class DilatedConvolutional(nn.Module):
         output = self.main(input)
         pools = self.max_pool(output).squeeze(-1)
         output = nn.functional.tanh(self.fc(pools))
-        # output = nn.functional.normalize(output, dim=-1,p=2)
         return output

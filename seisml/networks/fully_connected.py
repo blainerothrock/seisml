@@ -1,5 +1,5 @@
 from torch import nn
-import torch.nn.functional as F
+
 
 class FullyConnected(nn.Module):
     def __init__(self, input_size=100000):
