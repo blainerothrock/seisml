@@ -12,7 +12,6 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 from tqdm import tqdm
 
 model_functions = {
-    'fc': networks.FullyConnected,
     'conv': networks.DilatedConvolutional
 }
 
@@ -94,7 +93,7 @@ def butter_lowpass(cutoff, fs, order=5):
     b, a = butter(order, normal_cutoff, btype='low', analog=False)
     return b, a
 
-def butter_highpass(cutoff, fs, order=5):
+def butter_highpass(cutoff: object, fs: object, order: object = 5) -> object:
     nyq = 0.5 * fs
     normal_cutoff = cutoff / nyq
     b, a = butter(order, normal_cutoff, btype='high', analog=False)
