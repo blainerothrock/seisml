@@ -37,7 +37,7 @@ class TestDilatedConvolutional:
 
         dl = DataLoader(ds, batch_size=2, num_workers=1)
 
-        model = DilatedConvolutional(embedding_size=embedding_size)
+        model = DilatedConvolutional(embedding_size=embedding_size, downsample=True)
         data, label = next(iter(dl))
         params = filter(lambda p: p.requires_grad, model.parameters())
         opt = torch.optim.Adam(params, lr=0.01)
@@ -45,13 +45,13 @@ class TestDilatedConvolutional:
 
         data = data.view(-1, 1, data.shape[-1])
 
-        embedding_a = model(data)
+        for i in range(5):
+            embedding_a = model(data)
+            assert len(embedding_a[-1]) == embedding_size, 'output should match embedding size'
 
-        assert len(embedding_a[-1]) == embedding_size, 'output should match embedding size'
-
-        _loss_a = l(embedding_a, label.float())
-        _loss_a.backward()
-        opt.step()
+            _loss_a = l(embedding_a, label.float())
+            _loss_a.backward()
+            opt.step()
 
         embedding_b = model(data)
         _loss_b = l(embedding_b, label.float())
