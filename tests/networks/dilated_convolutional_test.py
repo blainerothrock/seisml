@@ -38,22 +38,24 @@ class TestDilatedConvolutional:
         dl = DataLoader(ds, batch_size=2, num_workers=1)
 
         model = DilatedConvolutional(embedding_size=embedding_size, downsample=True)
-        data, label = next(iter(dl))
+        test_data, test_label = next(iter(dl))
         params = filter(lambda p: p.requires_grad, model.parameters())
         opt = torch.optim.Adam(params, lr=0.01)
         l = DeepClusteringLoss()
 
-        data = data.view(-1, 1, data.shape[-1])
+        test_data = test_data.view(-1, 1, test_data.shape[-1])
+        embedding_a = model(test_data)
+        assert len(embedding_a[-1]) == embedding_size, 'output should match embedding size'
+        _loss_a = l(embedding_a, test_label.float())
 
-        for i in range(5):
-            embedding_a = model(data)
-            assert len(embedding_a[-1]) == embedding_size, 'output should match embedding size'
-
-            _loss_a = l(embedding_a, label.float())
-            _loss_a.backward()
+        for data, label in dl:
+            data = data.view(-1, 1, data.shape[-1])
+            output = model(data)
+            _loss = l(output, label.float())
+            _loss.backward()
             opt.step()
 
-        embedding_b = model(data)
-        _loss_b = l(embedding_b, label.float())
+        embedding_b = model(test_data)
+        _loss_b = l(embedding_b, test_label.float())
 
         assert _loss_b < _loss_a, 'the model should learn something'
