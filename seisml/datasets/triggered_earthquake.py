@@ -2,12 +2,18 @@ import os, random
 from torch.utils.data import Dataset
 import numpy as np
 import obspy
+from enum import Enum
 from multiprocessing import cpu_count
 from seisml.utility.download_data import download_triggered_earthquake_data
 from seisml.utility.utils import parallel_process, save_file
 from seisml.core.transforms import Resample, \
     ButterworthPassFilter, FilterType, Compose, \
     ToTensor, Augment, AugmentationType, TargetLength
+
+
+class DatasetMode(Enum):
+    TRAIN = 0
+    TEST = 1
 
 
 def triggered_earthquake_transform(
@@ -79,10 +85,12 @@ class TriggeredEarthquake(Dataset):
 
     def __init__(
             self,
-            data_dir=os.path.expanduser('~/.seisml/data/triggered_earthquakes'),
+            data_dir=os.path.expanduser('~/.seisml/data/triggered_earthquakes/raw'),
             force_download=False,
             download=download_triggered_earthquake_data,
             labels=['positive', 'negative'],
+            mode=DatasetMode.TRAIN,
+            testing_quakes=[],
             transform=triggered_earthquake_transform()):
 
         if not os.path.isdir(os.path.expanduser(data_dir)) or force_download:
@@ -91,8 +99,18 @@ class TriggeredEarthquake(Dataset):
         self.labels = labels
         self.data_dir = data_dir
         self.transform = transform
+        self.mode = mode
+        self.testing_quakes = testing_quakes
 
-        quake_dirs = [os.path.join(data_dir, x) for x in os.listdir(data_dir)]
+        if mode == DatasetMode.TRAIN:
+            # include all quakes minus testing quakes
+            dirs = filter(lambda d: d not in testing_quakes, os.listdir(data_dir))
+            quake_dirs = [os.path.join(data_dir, x) for x in dirs]
+        elif mode == DatasetMode.TEST:
+            # only include testing quakes
+            dirs = filter(lambda d: d in testing_quakes, os.listdir(data_dir))
+            quake_dirs = [os.path.join(data_dir, x) for x in dirs]
+
         self.files = []
         for qd in list(filter(lambda q: os.path.isdir(q), quake_dirs)):
             class_dirs = [os.path.join(qd, x) for x in os.listdir(qd) if x in labels]

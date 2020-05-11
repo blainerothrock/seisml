@@ -31,3 +31,8 @@ class TestTriggeredEarthquake:
 
         assert isinstance(sample[0], torch.Tensor), 'data ouput should be tensor'
         assert np.sum(sample[1].numpy()) == 1, 'one-hot encoding should contain exactly 1 class'
+
+
+    def test_train_test(self):
+#         TODO: test train & test functionality
+        pass

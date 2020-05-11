@@ -11,7 +11,7 @@ class TestCompose:
         tf = Compose([
             ButterworthPassFilter(filter_type=FilterType.BANDPASS, min_freq=0.1, max_freq=5.0, corners=2),
             Normalize(),
-            ToTensor(device=torch.device('cpu'))
+            ToTensor()
         ])
 
         return tf
@@ -22,7 +22,7 @@ class TestCompose:
         tf = Compose([
             ButterworthPassFilter(filter_type=FilterType.BANDPASS, min_freq=0.1, max_freq=5.0, corners=2),
             Normalize(),
-            ToTensor(device=torch.device('cpu'))
+            ToTensor()
         ])
 
         tf(data)

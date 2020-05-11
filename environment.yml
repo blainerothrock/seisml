@@ -7,13 +7,21 @@ dependencies:
   - _libgcc_mutex=0.1=conda_forge
   - _openmp_mutex=4.5=0_gnu
   - _pytorch_select=0.1=cpu_0
+  - absl-py=0.9.0=py37hc8dfbb8_1
   - attrs=19.3.0=py_0
   - backcall=0.1.0=py_0
   - blas=1.0=mkl
+  - blinker=1.4=py_1
+  - brotlipy=0.7.0=py37h8f50634_1000
+  - c-ares=1.15.0=h516909a_1001
   - ca-certificates=2020.4.5.1=hecc5488_0
+  - cachetools=3.1.1=py_0
   - certifi=2020.4.5.1=py37hc8dfbb8_0
   - cffi=1.14.0=py37hd463f26_0
+  - chardet=3.0.4=py37hc8dfbb8_1006
+  - click=7.1.2=pyh9f0ad1d_0
   - coverage=5.1=py37h8f50634_0
+  - cryptography=2.9.2=py37hb09aad4_0
   - cudatoolkit=10.1.243=h6bb024c_0
   - cudnn=7.6.5=cuda10.1_0
   - cycler=0.10.0=py_2
@@ -25,9 +33,14 @@ dependencies:
   - freetype=2.10.1=he06d7ca_0
   - gettext=0.19.8.1=hc5be6a0_1002
   - glib=2.64.2=h6f030ca_0
+  - google-auth=1.14.2=pyh9f0ad1d_0
+  - google-auth-oauthlib=0.4.1=py_2
+  - grpcio=1.27.2=py37hf8bcb03_0
   - gst-plugins-base=1.14.5=h0935bb2_2
   - gstreamer=1.14.5=h36ae1b5_2
   - icu=64.2=he1b5a44_1
+  - idna=2.9=py_1
+  - ignite=0.3.0=py37_0
   - importlib-metadata=1.6.0=py37hc8dfbb8_0
   - importlib_metadata=1.6.0=0
   - intel-openmp=2020.0=166
@@ -62,6 +75,7 @@ dependencies:
   - libxkbcommon=0.10.0=he1b5a44_0
   - libxml2=2.9.10=hee79883_0
   - lz4-c=1.9.2=he1b5a44_0
+  - markdown=3.2.1=py_0
   - matplotlib=3.2.1=0
   - matplotlib-base=3.2.1=py37h30547a4_0
   - mkl=2020.0=166
@@ -75,6 +89,7 @@ dependencies:
   - nss=3.47=he751ad9_0
   - numpy=1.18.1=py37h8960a57_1
   - numpy-base=1.18.1=py37hde5b4d6_1
+  - oauthlib=3.0.1=py_0
   - olefile=0.46=py_0
   - openssl=1.1.1g=h516909a_0
   - pandas=1.0.3=py37h0da4684_1
@@ -90,10 +105,15 @@ dependencies:
   - pthread-stubs=0.4=h14c3975_1001
   - ptyprocess=0.6.0=py_1001
   - py=1.8.1=py_0
+  - pyasn1=0.4.8=py_0
+  - pyasn1-modules=0.2.7=py_0
   - pycparser=2.20=py_0
   - pygments=2.6.1=py_0
+  - pyjwt=1.7.1=py_0
+  - pyopenssl=19.1.0=py_1
   - pyparsing=2.4.7=pyh9f0ad1d_0
   - pyqt=5.12.3=py37hcca6a23_1
+  - pysocks=1.7.1=py37hc8dfbb8_1
   - pytest=5.4.1=py37hc8dfbb8_0
   - pytest-cov=2.8.1=py_0
   - python=3.7.6=h8356626_5_cpython
@@ -104,6 +124,9 @@ dependencies:
   - pyzmq=19.0.0=py37hac76be4_1
   - qt=5.12.5=hd8c4c69_1
   - readline=8.0=hf8c457e_0
+  - requests=2.23.0=pyh8c360ce_2
+  - requests-oauthlib=1.2.0=py_0
+  - rsa=4.0=py_0
   - scikit-learn=0.22.2.post1=py37hcdab131_0
   - scipy=1.4.1=py37ha3d9a3c_3
   - seaborn=0.10.0=py_1
@@ -111,12 +134,15 @@ dependencies:
   - six=1.14.0=py_1
   - sqlite=3.30.1=hcee41ef_0
   - statsmodels=0.11.1=py37h8f50634_1
+  - tensorboard=2.1.1=py_1
   - tensorboardx=2.0=py_0
   - tk=8.6.10=hed695b0_0
   - torchvision=0.6.0=py37_cu101
   - tornado=6.0.4=py37h8f50634_1
   - traitlets=4.3.3=py37hc8dfbb8_1
+  - urllib3=1.25.9=py_0
   - wcwidth=0.1.9=pyh9f0ad1d_0
+  - werkzeug=1.0.1=pyh9f0ad1d_0
   - wheel=0.34.2=py_1
   - xorg-libxau=1.0.9=h14c3975_0
   - xorg-libxdmcp=1.1.3=h516909a_0
@@ -127,10 +153,8 @@ dependencies:
   - zstd=1.4.4=h6597ccf_3
   - pip:
     - art==4.6
-    - chardet==3.0.4
     - future==0.18.2
     - gin-config==0.3.0
-    - idna==2.9
     - lxml==4.5.0
     - obspy==1.2.1
     - packaging==20.3
@@ -138,10 +162,8 @@ dependencies:
     - pycm==2.6
     - pyqt5-sip==4.19.18
     - pyqtwebengine==5.12.1
-    - requests==2.23.0
     - sqlalchemy==1.3.16
     - torch-summary==1.2.0
     - tqdm==4.45.0
-    - urllib3==1.25.9
-prefix: /home/b/anaconda3/envs/seis
+prefix: /home/b/anaconda3/envs/selsml
 
