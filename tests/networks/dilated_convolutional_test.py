@@ -1,6 +1,6 @@
 import pytest, os
 from seisml.networks.dilated_convolutional import DilatedConvolutional
-from seisml.datasets.triggered_earthquake import TriggeredEarthquake
+from seisml.datasets import TriggeredEarthquake, SiameseDataset
 from seisml.utility.download_data import download_sample_data
 from seisml.metrics.loss import DeepClusteringLoss
 import torch
@@ -26,7 +26,7 @@ class TestDilatedConvolutional:
         num_params = sum([p.numel() for p in model.parameters() if p.requires_grad])
         assert num_params == 7440, 'number of params should match papers description'
 
-    def test_single_pass_learn(self):
+    def test_learning(self):
         embedding_size = 10
 
         ds = TriggeredEarthquake(
@@ -35,7 +35,7 @@ class TestDilatedConvolutional:
             download=download_sample_data
         )
 
-        dl = DataLoader(ds, batch_size=2, num_workers=1)
+        dl = DataLoader(ds, batch_size=24, num_workers=1)
 
         model = DilatedConvolutional(embedding_size=embedding_size, downsample=True)
         test_data, test_label = next(iter(dl))
@@ -48,14 +48,49 @@ class TestDilatedConvolutional:
         assert len(embedding_a[-1]) == embedding_size, 'output should match embedding size'
         _loss_a = l(embedding_a, test_label.float())
 
-        for data, label in dl:
-            data = data.view(-1, 1, data.shape[-1])
-            output = model(data)
-            _loss = l(output, label.float())
-            _loss.backward()
-            opt.step()
+        for _ in range(4):
+            for data, label in dl:
+                data = data.view(-1, 1, data.shape[-1])
+                output = model(data)
+                _loss = l(output, label.float())
+                _loss.backward()
+                opt.step()
 
         embedding_b = model(test_data)
         _loss_b = l(embedding_b, test_label.float())
 
         assert _loss_b < _loss_a, 'the model should learn something'
+
+    def test_seimse_learning(self):
+        embedding_size = 10
+
+        ds = TriggeredEarthquake(
+            data_dir=os.path.expanduser('~/.seisml/data/sample_data/raw'),
+            force_download=False,
+            download=download_sample_data
+        )
+        ds = SiameseDataset(ds)
+
+        dl = DataLoader(ds, batch_size=24, num_workers=1)
+
+        model = DilatedConvolutional(embedding_size=embedding_size, downsample=True)
+        test_data, test_label = next(iter(dl))
+        params = filter(lambda p: p.requires_grad, model.parameters())
+        opt = torch.optim.Adam(params, lr=0.01)
+        l = DeepClusteringLoss()
+
+        test_data = test_data.view(-1, 1, test_data.shape[-1])
+        embedding_a = model(test_data)
+        assert len(embedding_a[-1]) == embedding_size, 'output should match embedding size'
+        _loss_a = l(embedding_a, test_label.float())
+
+        for _ in range(4):
+            for data, label in dl:
+                data = data.view(-1, 1, data.shape[-1])
+                output = model(data)
+                _loss = l(output, label.float())
+                _loss.backward()
+                opt.step()
+
+        embedding_b = model(test_data)
+        _loss_b = l(embedding_b, test_label.float())
