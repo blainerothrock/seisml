@@ -11,7 +11,7 @@ class TestTriggeredEarthquake:
 
     def test_download_and_preproces(self):
         ds = TriggeredEarthquake(
-            data_dir=os.path.expanduser('~/.seisml/data/sample_data/raw'),
+            data_dir=os.path.expanduser('~/.seisml/data/sample_data/'),
             force_download=False,
             download=download_sample_data
         )
@@ -21,7 +21,7 @@ class TestTriggeredEarthquake:
 
     def test_get_item(self):
         ds = TriggeredEarthquake(
-            data_dir=os.path.expanduser('~/.seisml/data/sample_data/raw'),
+            data_dir=os.path.expanduser('~/.seisml/data/sample_data/'),
             force_download=False,
             download=download_sample_data
         )

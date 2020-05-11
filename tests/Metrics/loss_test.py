@@ -7,7 +7,7 @@ def test_deep_clutering_loss():
     # simulating seismic data with 3 sources separated into 2 classes
 
     batch_size = 24
-    num_channel= 2
+    num_channel = 2
     num_source = 3
     embedding_size = 10
     num_class = 2

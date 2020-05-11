@@ -1,4 +1,5 @@
-import os, random
+import os, random, shutil
+import torch
 from torch.utils.data import Dataset
 import numpy as np
 import obspy
@@ -11,9 +12,9 @@ from seisml.core.transforms import Resample, \
     ToTensor, Augment, AugmentationType, TargetLength
 
 
-class DatasetMode(Enum):
-    TRAIN = 0
-    TEST = 1
+class DatasetMode(str, Enum):
+    TRAIN = 'train'
+    TEST = 'test'
 
 
 def triggered_earthquake_transform(
@@ -24,7 +25,6 @@ def triggered_earthquake_transform(
         aug_types=[AugmentationType.AMPLITUDE, AugmentationType.NOISE],
         aug_prob=0.5,
         target_length=20000):
-
     transforms = [
         Resample(sampling_rate=sampling_rate),
         ButterworthPassFilter(
@@ -85,7 +85,7 @@ class TriggeredEarthquake(Dataset):
 
     def __init__(
             self,
-            data_dir=os.path.expanduser('~/.seisml/data/triggered_earthquakes/raw'),
+            data_dir=os.path.expanduser('~/.seisml/data/triggered_earthquakes'),
             force_download=False,
             download=download_triggered_earthquake_data,
             labels=['positive', 'negative'],
@@ -102,39 +102,65 @@ class TriggeredEarthquake(Dataset):
         self.mode = mode
         self.testing_quakes = testing_quakes
 
+        raw_path = os.path.join(data_dir, 'raw')
         if mode == DatasetMode.TRAIN:
             # include all quakes minus testing quakes
-            dirs = filter(lambda d: d not in testing_quakes, os.listdir(data_dir))
-            quake_dirs = [os.path.join(data_dir, x) for x in dirs]
+            dirs = filter(lambda d: d not in testing_quakes, os.listdir(raw_path))
+            quake_dirs = [os.path.join(raw_path, x) for x in dirs]
         elif mode == DatasetMode.TEST:
             # only include testing quakes
-            dirs = filter(lambda d: d in testing_quakes, os.listdir(data_dir))
-            quake_dirs = [os.path.join(data_dir, x) for x in dirs]
+            dirs = filter(lambda d: d in testing_quakes, os.listdir(raw_path))
+            quake_dirs = [os.path.join(raw_path, x) for x in dirs]
 
-        self.files = []
+        self.raw_files = []
         for qd in list(filter(lambda q: os.path.isdir(q), quake_dirs)):
             class_dirs = [os.path.join(qd, x) for x in os.listdir(qd) if x in labels]
             for cd in class_dirs:
                 sacs = [os.path.join(cd, f) for f in os.listdir(cd) if ('.SAC' in f or '.sac' in f)]
-                self.files += sacs
+                self.raw_files += sacs
 
-        random.shuffle(self.files)
+        self.processed_files = []
+        self.preprocess_all_and_save()
 
     def __len__(self):
-        return len(self.files)
+        return len(self.raw_files)
 
     def __getitem__(self, i):
-        file = self.files[i]
-        data = obspy.read(file)[0]
-        label = file.split('/')[-2]
+        file = self.processed_files[i]
+        p = torch.load(open(file, 'rb'))
+        return p['data'], p['label']
 
-        # one hot encode labels
-        one_hot = np.zeros(len(self.labels))
-        lbl_idx = self.labels.index(label)
-        one_hot[lbl_idx] = 1
+    def preprocess_all_and_save(self):
+        prepare_path = os.path.join(self.data_dir,
+                                    'prepare_train' if self.mode == DatasetMode.TRAIN else 'prepare_test')
+        if os.path.isdir(prepare_path) and len(os.listdir(prepare_path)) == len(self.raw_files):
+            # files are already preprocessed
+            self.processed_files = [os.path.join(prepare_path, f) for f in os.listdir(prepare_path)]
+            return
 
-        data = {'t': data}
+        shutil.rmtree(prepare_path, ignore_errors=True)
+        os.mkdir(prepare_path)
 
-        self.transform(data)
+        for file in self.raw_files:
+            file_split = file.split('/')
+            file_name = file_split[-1]
+            label = file_split[-2]
+            quake = file_split[-3]
 
-        return data['t'], one_hot
+            data = obspy.read(file)[0]
+
+            one_hot = np.zeros(len(self.labels), dtype=np.float)
+            lbl_idx = self.labels.index(label)
+            one_hot[lbl_idx] = 1
+
+            data = {'t': data}
+
+            self.transform(data)
+
+            f = '%s_%s_%s.pt' % (quake, label, file_name)
+            torch.save(
+                {'data': data['t'], 'label': one_hot},
+                open(os.path.join(prepare_path, f), 'wb')
+            )
+            self.processed_files.append(os.path.join(prepare_path, f))
+            random.shuffle(self.processed_files)
