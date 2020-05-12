@@ -167,4 +167,4 @@ class TriggeredEarthquake(Dataset):
                 open(os.path.join(prepare_path, f), 'wb')
             )
             self.processed_files.append(os.path.join(prepare_path, f))
-            random.shuffle(self.processed_files)
+            # random.shuffle(self.processed_files)

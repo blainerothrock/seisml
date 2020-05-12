@@ -3,7 +3,7 @@ from ignite.engine import Events, Engine
 from ignite.metrics import Loss
 import torch
 from triggered_earthquake_engine import create_engine, create_eval, test_knn
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, SequentialSampler
 from seisml.datasets import TriggeredEarthquake, SiameseDataset, DatasetMode, triggered_earthquake_transform
 from seisml.networks import DilatedConvolutional
 from seisml.metrics.loss import DeepClusteringLoss
@@ -12,11 +12,11 @@ import gin
 
 @gin.configurable
 def train(
+        epochs,
         batch_size,
         num_workers,
         learning_rate,
-        weight_decay,
-        epochs):
+        weight_decay):
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
     ds_train = TriggeredEarthquake(
@@ -27,8 +27,10 @@ def train(
         transform=triggered_earthquake_transform(random_trim_offset=False)
     )
     ds_train = SiameseDataset(ds_train)
-    train_loader = DataLoader(ds_train, batch_size=batch_size, num_workers=num_workers)
-    test_loader = DataLoader(ds_test, batch_size=batch_size, num_workers=num_workers)
+    train_loader = DataLoader(
+        ds_train, batch_size=batch_size, num_workers=num_workers, sampler=SequentialSampler(ds_train))
+    test_loader = DataLoader(
+        ds_test, batch_size=batch_size, num_workers=num_workers, sampler=SequentialSampler(ds_test))
 
     model = DilatedConvolutional(embedding_size=10)
     params = filter(lambda p: p.requires_grad, model.parameters())
