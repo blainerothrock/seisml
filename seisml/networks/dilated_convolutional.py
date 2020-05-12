@@ -59,10 +59,12 @@ class DilatedConvolutional(nn.Module):
 
         self.max_pool = nn.AdaptiveMaxPool1d(1)
         self.avg_pool = nn.AdaptiveAvgPool1d(1)
+
         self.fc = nn.Linear(num_channels, embedding_size, bias=False)
+        self.tanh = nn.Tanh()
 
     def forward(self, input):
         output = self.main(input)
         pools = self.max_pool(output).squeeze(-1)
-        output = nn.functional.tanh(self.fc(pools))
+        output = self.tanh(self.fc(pools))
         return output

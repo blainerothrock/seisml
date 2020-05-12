@@ -2,90 +2,77 @@ import os
 from ignite.engine import Events, Engine
 from ignite.metrics import Loss
 import torch
-from torch.utils.tensorboard import SummaryWriter
-from torchsummary import summary
+from triggered_earthquake_engine import create_engine, create_eval, test_knn
 from torch.utils.data import DataLoader
-from seisml.datasets import TriggeredEarthquake, SiameseDataset
+from seisml.datasets import TriggeredEarthquake, SiameseDataset, DatasetMode, triggered_earthquake_transform
 from seisml.networks import DilatedConvolutional
 from seisml.metrics.loss import DeepClusteringLoss
-
-os.chdir('../../')
-print('current working directory: %s' % os.getcwd())
+import gin
 
 
-def create_clustering_engine(model, optimizer, loss, device):
-    model.to(device)
+@gin.configurable
+def train(
+        batch_size,
+        num_workers,
+        learning_rate,
+        weight_decay,
+        epochs):
+    device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
-    def _update(engine, batch):
-        data, label = batch
-        data = data.view(-1, 1, data.shape[-1])
-        data = data.to(device)
-        label = label.to(device)
-        label = label.float()
-        model.train()
+    ds_train = TriggeredEarthquake(
+        mode=DatasetMode.TRAIN)
 
-        optimizer.zero_grad()
-        output = model(data)
-        _loss = loss(output, label)
-        _loss.backward()
-        optimizer.step()
+    ds_test = TriggeredEarthquake(
+        mode=DatasetMode.TEST,
+        transform=triggered_earthquake_transform(random_trim_offset=False)
+    )
+    ds_train = SiameseDataset(ds_train)
+    train_loader = DataLoader(ds_train, batch_size=batch_size, num_workers=num_workers)
+    test_loader = DataLoader(ds_test, batch_size=batch_size, num_workers=num_workers)
 
-        return _loss.item()
+    model = DilatedConvolutional(embedding_size=10)
+    params = filter(lambda p: p.requires_grad, model.parameters())
 
-    return Engine(_update)
+    optimizer = torch.optim.Adam(params, lr=learning_rate, weight_decay=weight_decay)
+    loss = DeepClusteringLoss()
 
+    trainer = create_engine(model, optimizer, loss, device)
+    evaluator = create_eval(model, {'loss': Loss(loss)}, device)
 
-def create_clustering_eval(model, metrics, device):
-    metrics = metrics or {}
+    # @trainer.on(Events.ITERATION_COMPLETED)
+    # def log_training_loss(trainer):
+    #     print("Epoch[{}] Loss: {:.2f}".format(trainer.state.epoch, trainer.state.output))
 
-    if device:
-        model.to(device)
+    @trainer.on(Events.EPOCH_COMPLETED)
+    def log_training_results(trainer):
+        evaluator.run(train_loader)
+        metrics = evaluator.state.metrics
+        print("Training Results - Epoch: {} Avg loss: {:.2f}"
+              .format(trainer.state.epoch, metrics['loss']))
 
-    def _inference(engine, batch):
-        model.eval()
-        with torch.no_grad():
-            data, label = batch
-            data = data.view(-1, 1, data.shape[-1])
-            data = data.to(device)
-            label = label.to(device)
-            label = label.float()
-            pred = model(data)
-            return pred, label
+    @trainer.on(Events.EPOCH_COMPLETED)
+    def log_testing_results(trainer):
+        evaluator.run(test_loader)
+        metrics = evaluator.state.metrics
+        print("Testing Results - Epoch: {} Avg loss: {:.2f}"
+              .format(trainer.state.epoch, metrics['loss']))
 
-    engine = Engine(_inference)
+    @trainer.on(Events.COMPLETED)
+    def test_acc(trainer):
+        acc, cm = test_knn(
+            model,
+            gin.query_parameter('triggered_earthquake_dataset.testing_quakes'),
+            device,
+            gin.query_parameter('triggered_earthquake_dataset.data_dir')
+        )
+        print('Testing Accurarcy: {:.2f}'.format(acc))
+        print(cm)
 
-    for name, metric in metrics.items():
-        metric.attach(engine, name)
-
-    return engine
-
-
-device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
-
-ds = TriggeredEarthquake()
-# ds = SiameseDataset(ds)
-train_loader = DataLoader(ds, batch_size=64, num_workers=10)
-
-model = DilatedConvolutional(embedding_size=10)
-params = filter(lambda p: p.requires_grad, model.parameters())
-
-optimizer = torch.optim.Adam(params, lr=2e-5, weight_decay=1e-1)
-loss = DeepClusteringLoss()
-
-trainer = create_clustering_engine(model, optimizer, loss, device)
-evaluator = create_clustering_eval(model, {'loss': Loss(loss)}, device)
+    trainer.run(train_loader, max_epochs=epochs)
 
 
-# @trainer.on(Events.ITERATION_COMPLETED)
-# def log_training_loss(trainer):
-#     print("Epoch[{}] Loss: {:.2f}".format(trainer.state.epoch, trainer.state.output))
-
-@trainer.on(Events.EPOCH_COMPLETED)
-def log_training_results(trainer):
-    evaluator.run(train_loader)
-    metrics = evaluator.state.metrics
-    print("Training Results - Epoch: {} Avg loss: {:.2f}"
-          .format(trainer.state.epoch, metrics['loss']))
-
-
-trainer.run(train_loader, max_epochs=100)
+if __name__ == '__main__':
+    gin.parse_config_file('config.gin')
+    os.chdir('../../')
+    print('current working directory: %s' % os.getcwd())
+    train()

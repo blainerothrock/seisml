@@ -10,6 +10,7 @@ from seisml.utility.utils import parallel_process, save_file
 from seisml.core.transforms import Resample, \
     ButterworthPassFilter, FilterType, Compose, \
     ToTensor, Augment, AugmentationType, TargetLength
+import gin
 
 
 class DatasetMode(str, Enum):
@@ -17,6 +18,7 @@ class DatasetMode(str, Enum):
     TEST = 'test'
 
 
+@gin.configurable('triggered_earthquake_transform', blacklist=['aug_types'])
 def triggered_earthquake_transform(
         sampling_rate=20.0,
         max_freq=2.0,
@@ -24,7 +26,8 @@ def triggered_earthquake_transform(
         corner=2,
         aug_types=[AugmentationType.AMPLITUDE, AugmentationType.NOISE],
         aug_prob=0.5,
-        target_length=20000):
+        target_length=8192,
+        random_trim_offset=True):
     transforms = [
         Resample(sampling_rate=sampling_rate),
         ButterworthPassFilter(
@@ -35,13 +38,14 @@ def triggered_earthquake_transform(
             zerophase=True
         ),
         Augment(augmentation_types=aug_types, probability=aug_prob),
-        TargetLength(target_length=target_length, random_offset=True),
+        TargetLength(target_length=target_length, random_offset=random_trim_offset),
         ToTensor()
     ]
 
     return Compose(transforms, source='t', inplace=True)
 
 
+@gin.configurable('triggered_earthquake_dataset', blacklist=['transform', 'mode', 'download'])
 class TriggeredEarthquake(Dataset):
     """
     Dataset for Triggered Earthquakes as refferenced in Automating the Detection of Dynamically Triggered Earthquakes

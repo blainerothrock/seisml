@@ -1,0 +1,18 @@
+train.batch_size = 64
+train.num_workers = 10
+train.learning_rate = 2e-5
+train.weight_decay = 1e-1
+train.epochs = 100
+
+triggered_earthquake_transform.sampling_rate=20.0
+triggered_earthquake_transform.max_freq=2.0
+triggered_earthquake_transform.min_freq=8.0
+triggered_earthquake_transform.corner=2
+triggered_earthquake_transform.aug_prob=0.5
+triggered_earthquake_transform.target_length=8192
+triggered_earthquake_transform.random_trim_offset=True
+
+triggered_earthquake_dataset.data_dir='/home/b/.seisml/data/triggered_earthquakes/'
+triggered_earthquake_dataset.force_download=False
+triggered_earthquake_dataset.labels=['positive', 'negative']
+triggered_earthquake_dataset.testing_quakes=['SAC_20021102_XF_prem']

@@ -165,5 +165,5 @@ dependencies:
     - sqlalchemy==1.3.16
     - torch-summary==1.2.0
     - tqdm==4.45.0
-prefix: /home/b/anaconda3/envs/selsml
+prefix: /home/b/anaconda3/envs/seisml
 
