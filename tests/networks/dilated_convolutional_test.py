@@ -35,9 +35,9 @@ class TestDilatedConvolutional:
             download=download_sample_data
         )
 
-        dl = DataLoader(ds, batch_size=24, num_workers=1)
+        dl = DataLoader(ds, batch_size=8, num_workers=1)
 
-        model = DilatedConvolutional(embedding_size=embedding_size, downsample=True)
+        model = DilatedConvolutional(embedding_size=embedding_size, downsample=False)
         test_data, test_label = next(iter(dl))
         params = filter(lambda p: p.requires_grad, model.parameters())
         opt = torch.optim.Adam(params, lr=0.01)
@@ -61,7 +61,7 @@ class TestDilatedConvolutional:
 
         assert _loss_b < _loss_a, 'the model should learn something'
 
-    def test_seimse_learning(self):
+    def test_siamese_learning(self):
         embedding_size = 10
 
         ds = TriggeredEarthquake(
@@ -73,7 +73,7 @@ class TestDilatedConvolutional:
 
         dl = DataLoader(ds, batch_size=24, num_workers=1)
 
-        model = DilatedConvolutional(embedding_size=embedding_size, downsample=True)
+        model = DilatedConvolutional(embedding_size=embedding_size, downsample=False)
         test_data, test_label = next(iter(dl))
         params = filter(lambda p: p.requires_grad, model.parameters())
         opt = torch.optim.Adam(params, lr=0.01)
