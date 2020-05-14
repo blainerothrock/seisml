@@ -1,7 +1,7 @@
 import pytest, os
 from seisml.networks.dilated_convolutional import DilatedConvolutional
 from seisml.datasets import TriggeredEarthquake, SiameseDataset
-from seisml.utility.download_data import download_sample_data
+from seisml.utility.download_data import DownloadableData
 from seisml.metrics.loss import DeepClusteringLoss
 import torch
 from torch.utils.data import DataLoader
@@ -14,7 +14,7 @@ class TestDilatedConvolutional:
         ds = TriggeredEarthquake(
             data_dir=os.path.expanduser('~/.seisml/data/sample_data/'),
             force_download=False,
-            download=download_sample_data
+            downloadable_data=DownloadableData.SAMPLE_DATA
         )
 
         dl = DataLoader(ds, batch_size=1, num_workers=1)
@@ -32,7 +32,7 @@ class TestDilatedConvolutional:
         ds = TriggeredEarthquake(
             data_dir=os.path.expanduser('~/.seisml/data/sample_data/'),
             force_download=False,
-            download=download_sample_data
+            downloadable_data=DownloadableData.SAMPLE_DATA
         )
 
         dl = DataLoader(ds, batch_size=8, num_workers=1)
@@ -67,7 +67,7 @@ class TestDilatedConvolutional:
         ds = TriggeredEarthquake(
             data_dir=os.path.expanduser('~/.seisml/data/sample_data/'),
             force_download=False,
-            download=download_sample_data
+            downloadable_data=DownloadableData.SAMPLE_DATA
         )
         ds = SiameseDataset(ds)
 

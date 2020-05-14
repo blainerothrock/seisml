@@ -5,7 +5,7 @@ import numpy as np
 import obspy
 from enum import Enum
 from multiprocessing import cpu_count
-from seisml.utility.download_data import download_triggered_earthquake_data
+from seisml.utility.download_data import download_and_verify, DownloadableData, downloadable_data_path
 from seisml.utility.utils import parallel_process, save_file
 from seisml.core.transforms import Resample, \
     ButterworthPassFilter, FilterType, Compose, \
@@ -45,7 +45,7 @@ def triggered_earthquake_transform(
     return Compose(transforms, source='t', inplace=True)
 
 
-@gin.configurable('triggered_earthquake_dataset', blacklist=['transform', 'mode', 'download'])
+@gin.configurable('triggered_earthquake_dataset', blacklist=['transform', 'mode'])
 class TriggeredEarthquake(Dataset):
     """
     Dataset for Triggered Earthquakes as refferenced in Automating the Detection of Dynamically Triggered Earthquakes
@@ -85,20 +85,23 @@ class TriggeredEarthquake(Dataset):
         force_download: (Bool): [optional] if data already exists, re-download it, default: False
         download: (function): [optional] download method, default: download_triggered_earthquake_data
         labels: (list): labels to use from the directory structure, default: ['positive', 'negative']
+        mode: (DatasetMode): TRAIN or TEST mode
+        testing_quakes (list): which Earthquakes are used only for testing
+        transform: (BaseTransform): The transform(s) used for each observation
     """
 
     def __init__(
             self,
             data_dir=os.path.expanduser('~/.seisml/data/triggered_earthquakes'),
             force_download=False,
-            download=download_triggered_earthquake_data,
+            downloadable_data=DownloadableData.SAMPLE_DATA,
             labels=['positive', 'negative'],
             mode=DatasetMode.TRAIN,
             testing_quakes=[],
             transform=triggered_earthquake_transform()):
 
         if not os.path.isdir(os.path.expanduser(data_dir)) or force_download:
-            download(force=force_download)
+            download_and_verify(downloadable_data.value, downloadable_data_path(downloadable_data))
 
         self.labels = labels
         self.data_dir = data_dir

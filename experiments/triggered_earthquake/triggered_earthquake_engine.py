@@ -61,7 +61,9 @@ def create_eval(model, metrics, device):
 
 def test_knn(model, testing_quakes, device, data_dir):
 
-    non_quakes = ['sq_2005-01-21', 'sq_2005-03-05', 'sq_2005-03-25', 'sq_2005-04-02', 'sq_2005-05-09', 'sq_2005-05-22', 'sq_2005-05-27', 'sq_2005-06-06', 'sq_2005-08-18', 'sq_2005-08-21'] + testing_quakes
+    # only create KNN on smallquakes
+    non_quakes = ['sq_2005-01-21', 'sq_2005-03-05', 'sq_2005-03-25', 'sq_2005-04-02', 'sq_2005-05-09',
+                  'sq_2005-05-22', 'sq_2005-05-27', 'sq_2005-06-06', 'sq_2005-08-18', 'sq_2005-08-21'] + testing_quakes
 
     ds_train = TriggeredEarthquake(
         data_dir=data_dir,

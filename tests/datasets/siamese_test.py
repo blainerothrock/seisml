@@ -1,6 +1,6 @@
 import pytest, os
 from seisml.datasets import SiameseDataset, TriggeredEarthquake
-from seisml.utility.download_data import download_sample_data
+from seisml.utility.download_data import DownloadableData
 from torch.utils.data import DataLoader
 import numpy as np
 
@@ -11,7 +11,7 @@ class TestSiamese:
         ds = TriggeredEarthquake(
             data_dir=os.path.expanduser('~/.seisml/data/sample_data/'),
             force_download=False,
-            download=download_sample_data
+            downloadable_data=DownloadableData.SAMPLE_DATA
         )
 
         batch_size = 4

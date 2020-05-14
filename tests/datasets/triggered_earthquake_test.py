@@ -2,7 +2,7 @@ import pytest
 import os
 import torch
 import numpy as np
-from seisml.utility.download_data import download_sample_data
+from seisml.utility.download_data import DownloadableData
 from seisml.datasets import TriggeredEarthquake
 from torch.utils.data import DataLoader
 
@@ -13,7 +13,7 @@ class TestTriggeredEarthquake:
         ds = TriggeredEarthquake(
             data_dir=os.path.expanduser('~/.seisml/data/sample_data/'),
             force_download=False,
-            download=download_sample_data
+            downloadable_data=DownloadableData.SAMPLE_DATA
         )
 
         assert len(ds) > 0, 'files should exist'
@@ -23,7 +23,7 @@ class TestTriggeredEarthquake:
         ds = TriggeredEarthquake(
             data_dir=os.path.expanduser('~/.seisml/data/sample_data/'),
             force_download=False,
-            download=download_sample_data
+            downloadable_data=DownloadableData.SAMPLE_DATA
         )
 
         dl = DataLoader(ds, batch_size=1, num_workers=1)
