@@ -12,7 +12,7 @@ class TestDilatedConvolutional:
 
     def test_paper_configuration(self):
         ds = TriggeredEarthquake(
-            data_dir=os.path.expanduser('~/.seisml/data/sample_data/'),
+            data_dir=os.path.expanduser('~/.seisml/data/' + DownloadableData.SAMPLE_DATA.value),
             force_download=False,
             downloadable_data=DownloadableData.SAMPLE_DATA
         )
@@ -30,7 +30,7 @@ class TestDilatedConvolutional:
         embedding_size = 10
 
         ds = TriggeredEarthquake(
-            data_dir=os.path.expanduser('~/.seisml/data/sample_data/'),
+            data_dir=os.path.expanduser('~/.seisml/data/' + DownloadableData.SAMPLE_DATA.value),
             force_download=False,
             downloadable_data=DownloadableData.SAMPLE_DATA
         )
@@ -65,7 +65,7 @@ class TestDilatedConvolutional:
         embedding_size = 10
 
         ds = TriggeredEarthquake(
-            data_dir=os.path.expanduser('~/.seisml/data/sample_data/'),
+            data_dir=os.path.expanduser('~/.seisml/data/' + DownloadableData.SAMPLE_DATA.value),
             force_download=False,
             downloadable_data=DownloadableData.SAMPLE_DATA
         )

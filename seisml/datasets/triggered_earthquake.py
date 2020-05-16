@@ -9,20 +9,22 @@ from seisml.utility.download_data import download_and_verify, DownloadableData, 
 from seisml.utility.utils import parallel_process, save_file
 from seisml.core.transforms import Resample, \
     ButterworthPassFilter, FilterType, Compose, \
-    ToTensor, Augment, AugmentationType, TargetLength
+    ToTensor, Augment, AugmentationType, TargetLength, DetrendFilter, DetrendType, \
+    Normalize
 import gin
 
 
 class DatasetMode(str, Enum):
     TRAIN = 'train'
     TEST = 'test'
+    INFERENCE = 'inference'
 
 
 @gin.configurable('triggered_earthquake_transform', blacklist=['aug_types'])
 def triggered_earthquake_transform(
         sampling_rate=20.0,
-        max_freq=2.0,
-        min_freq=8.0,
+        max_freq=8.0,
+        min_freq=2.0,
         corner=2,
         aug_types=[AugmentationType.AMPLITUDE, AugmentationType.NOISE],
         aug_prob=0.5,
@@ -32,13 +34,14 @@ def triggered_earthquake_transform(
         Resample(sampling_rate=sampling_rate),
         ButterworthPassFilter(
             filter_type=FilterType.BANDPASS,
-            min_freq=max_freq,
-            max_freq=min_freq,
+            min_freq=min_freq,
+            max_freq=max_freq,
             corners=corner,
             zerophase=True
         ),
-        Augment(augmentation_types=aug_types, probability=aug_prob),
+        # Augment(augmentation_types=aug_types, probability=aug_prob),
         TargetLength(target_length=target_length, random_offset=random_trim_offset),
+        Normalize(),
         ToTensor()
     ]
 
@@ -110,7 +113,7 @@ class TriggeredEarthquake(Dataset):
         self.testing_quakes = testing_quakes
 
         raw_path = os.path.join(data_dir, 'raw')
-        if mode == DatasetMode.TRAIN:
+        if mode == DatasetMode.TRAIN or mode == DatasetMode.INFERENCE:
             # include all quakes minus testing quakes
             dirs = filter(lambda d: d not in testing_quakes, os.listdir(raw_path))
             quake_dirs = [os.path.join(raw_path, x) for x in dirs]
@@ -138,8 +141,7 @@ class TriggeredEarthquake(Dataset):
         return p['data'], p['label']
 
     def preprocess_all_and_save(self):
-        prepare_path = os.path.join(self.data_dir,
-                                    'prepare_train' if self.mode == DatasetMode.TRAIN else 'prepare_test')
+        prepare_path = os.path.join(self.data_dir, 'prepare_{}'.format(self.mode.value))
         if os.path.isdir(prepare_path) and len(os.listdir(prepare_path)) == len(self.raw_files):
             # files are already preprocessed
             self.processed_files = [os.path.join(prepare_path, f) for f in os.listdir(prepare_path)]
@@ -166,7 +168,7 @@ class TriggeredEarthquake(Dataset):
 
             f = '%s_%s_%s.pt' % (quake, label, file_name)
             torch.save(
-                {'data': data['t'], 'label': one_hot},
+                {'data': data['t'], 'label': one_hot, 'quake': quake},
                 open(os.path.join(prepare_path, f), 'wb')
             )
             self.processed_files.append(os.path.join(prepare_path, f))

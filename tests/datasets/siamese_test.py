@@ -9,7 +9,7 @@ class TestSiamese:
 
     def test_dataset_wrapping(self):
         ds = TriggeredEarthquake(
-            data_dir=os.path.expanduser('~/.seisml/data/sample_data/'),
+            data_dir=os.path.expanduser('~/.seisml/data/' + DownloadableData.SAMPLE_DATA.value),
             force_download=False,
             downloadable_data=DownloadableData.SAMPLE_DATA
         )

@@ -7,13 +7,13 @@ from tqdm import tqdm
 
 
 class DownloadableData(str, Enum):
-    SAMPLE_DATA = 'sample_data'
+    SAMPLE_DATA = 'triggered_earthquake_sample_data'
     TRIGGERED_EARTHQUAKE = 'triggered_earthquakes'
 
 
 def downloadable_data_path(downloadable_data):
     if downloadable_data == DownloadableData.SAMPLE_DATA:
-        return 'https://blainerothrock-public.s3.us-east-2.amazonaws.com/seisml/sample_data.tar.gz'
+        return 'https://blainerothrock-public.s3.us-east-2.amazonaws.com/seisml/triggered_earthquake_sample_data.tar.gz'
     if downloadable_data == DownloadableData.TRIGGERED_EARTHQUAKE:
         return 'https://blainerothrock-public.s3.us-east-2.amazonaws.com/seisml/triggered_earthquakes.tar.gz'
 

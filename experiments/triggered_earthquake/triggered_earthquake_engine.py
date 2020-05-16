@@ -4,8 +4,10 @@ from ignite.engine import Events, Engine
 import numpy as np
 from torch.utils.data import DataLoader
 from seisml.datasets import TriggeredEarthquake, DatasetMode, triggered_earthquake_transform
+from seisml.utility.download_data import DownloadableData
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import confusion_matrix, accuracy_score
+from sklearn.svm import SVC
 
 
 def create_engine(model, optimizer, loss, device):
@@ -61,19 +63,17 @@ def create_eval(model, metrics, device):
 
 def test_knn(model, testing_quakes, device, data_dir):
 
-    # only create KNN on smallquakes
-    non_quakes = ['sq_2005-01-21', 'sq_2005-03-05', 'sq_2005-03-25', 'sq_2005-04-02', 'sq_2005-05-09',
-                  'sq_2005-05-22', 'sq_2005-05-27', 'sq_2005-06-06', 'sq_2005-08-18', 'sq_2005-08-21'] + testing_quakes
-
     ds_train = TriggeredEarthquake(
         data_dir=data_dir,
-        testing_quakes=non_quakes,
-        mode=DatasetMode.TRAIN,
+        testing_quakes=testing_quakes,
+        downloadable_data=DownloadableData.TRIGGERED_EARTHQUAKE,
+        mode=DatasetMode.INFERENCE,
         transform=triggered_earthquake_transform(random_trim_offset=False)
     )
     ds_test = TriggeredEarthquake(
         data_dir=data_dir,
         testing_quakes=testing_quakes,
+        downloadable_data=DownloadableData.TRIGGERED_EARTHQUAKE,
         mode=DatasetMode.TEST,
         transform=triggered_earthquake_transform(random_trim_offset=False)
     )
@@ -82,7 +82,7 @@ def test_knn(model, testing_quakes, device, data_dir):
 
     embeddings = []
     labels = []
-    for item in test_loader:
+    for item in train_loader:
         data, label = item
         data = data.view(-1, 1, data.shape[-1])
         data = data.to(device)
@@ -94,7 +94,8 @@ def test_knn(model, testing_quakes, device, data_dir):
     embeddings = np.vstack(embeddings)
     labels = np.vstack(labels)
 
-    svc = KNeighborsClassifier(n_neighbors=11)
+    # svc = KNeighborsClassifier(n_neighbors=11)
+    svc = SVC()
     svc.fit(embeddings, np.argmax(labels, axis=-1))
 
     preds = []

@@ -61,8 +61,8 @@ class Augment(BaseTraceTransform):
                 augmented.data *= amplitude_mod
 
             if AugmentationType.NOISE in self.augmentation_type:
-                std = data[self.source].data.std() * np.random.uniform(1, 2)
-                mean = data[self.source].data.mean()
+                std = augmented.data.std() * np.random.uniform(1, 2)
+                mean = augmented.data.mean()
                 noise = np.random.normal(loc=mean, scale=std, size=augmented.data.shape)
                 augmented.data += noise
 
