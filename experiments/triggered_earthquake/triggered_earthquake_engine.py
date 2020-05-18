@@ -15,15 +15,17 @@ def create_engine(model, optimizer, loss, device):
 
     def _update(engine, batch):
         data, label = batch
-        num = data.shape[1]
+        # num = data.shape[1]
+        num = 1
         data = data.view(-1, 1, data.shape[-1])
         data = data.to(device)
         label = label.to(device)
         label = label.float()
 
         model.train()
-
+        model.zero_grad()
         optimizer.zero_grad()
+
         output = model(data)
         output = output.view(-1, num, output.shape[-1])
         _loss = loss(output, label)
@@ -45,12 +47,17 @@ def create_eval(model, metrics, device):
         model.eval()
         with torch.no_grad():
             data, label = batch
+            # num = data.shape[1]
+            num = 1
             data = data.view(-1, 1, data.shape[-1])
             data = data.to(device)
             label = label.to(device)
             label = label.float()
-            pred = model(data)
-            return pred, label
+
+            output = model(data)
+            output = output.view(-1, num, output.shape[-1])
+
+            return output, label
 
     engine = Engine(_inference)
 
@@ -68,7 +75,7 @@ def test_knn(model, testing_quakes, device, data_dir):
         testing_quakes=testing_quakes,
         downloadable_data=DownloadableData.TRIGGERED_EARTHQUAKE,
         mode=DatasetMode.INFERENCE,
-        transform=triggered_earthquake_transform(random_trim_offset=False)
+        transform=triggered_earthquake_transform(random_trim_offset=False),
     )
     ds_test = TriggeredEarthquake(
         data_dir=data_dir,
@@ -77,8 +84,8 @@ def test_knn(model, testing_quakes, device, data_dir):
         mode=DatasetMode.TEST,
         transform=triggered_earthquake_transform(random_trim_offset=False)
     )
-    train_loader = DataLoader(ds_train, batch_size=1, num_workers=10)
-    test_loader = DataLoader(ds_test, batch_size=1, num_workers=10)
+    train_loader = DataLoader(ds_train, batch_size=1, num_workers=10, shuffle=True)
+    test_loader = DataLoader(ds_test, batch_size=1, num_workers=10, shuffle=True)
 
     embeddings = []
     labels = []

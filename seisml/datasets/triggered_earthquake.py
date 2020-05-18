@@ -100,7 +100,7 @@ class TriggeredEarthquake(Dataset):
             downloadable_data=DownloadableData.SAMPLE_DATA,
             labels=['positive', 'negative'],
             mode=DatasetMode.TRAIN,
-            testing_quakes=[],
+            testing_quakes=['SAC_20100227_Chile_prem'],
             transform=triggered_earthquake_transform()):
 
         if not os.path.isdir(os.path.expanduser(data_dir)) or force_download:

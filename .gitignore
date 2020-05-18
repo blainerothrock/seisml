@@ -1,6 +1,7 @@
 .idea/
 _old/
 runs/
+htmlcov/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

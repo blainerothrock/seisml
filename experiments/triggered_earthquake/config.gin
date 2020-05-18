@@ -15,4 +15,4 @@ triggered_earthquake_transform.random_trim_offset=True
 triggered_earthquake_dataset.data_dir='/home/b/.seisml/data/triggered_earthquakes/'
 triggered_earthquake_dataset.force_download=False
 triggered_earthquake_dataset.labels=['positive', 'negative']
-triggered_earthquake_dataset.testing_quakes=['SAC_20100227_Chile_prem']
+triggered_earthquake_dataset.testing_quakes=['SAC_20030927_XF_prem']

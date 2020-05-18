@@ -17,7 +17,7 @@ class TestDilatedConvolutional:
             downloadable_data=DownloadableData.SAMPLE_DATA
         )
 
-        dl = DataLoader(ds, batch_size=1, num_workers=1)
+        dl = DataLoader(ds, batch_size=1, num_workers=1, shuffle=True)
 
         model = DilatedConvolutional(embedding_size=10)
         data, label = next(iter(dl))
@@ -35,7 +35,7 @@ class TestDilatedConvolutional:
             downloadable_data=DownloadableData.SAMPLE_DATA
         )
 
-        dl = DataLoader(ds, batch_size=8, num_workers=1)
+        dl = DataLoader(ds, batch_size=8, num_workers=1, shuffle=True)
 
         model = DilatedConvolutional(embedding_size=embedding_size, downsample=False)
         test_data, test_label = next(iter(dl))
@@ -71,7 +71,7 @@ class TestDilatedConvolutional:
         )
         ds = SiameseDataset(ds)
 
-        dl = DataLoader(ds, batch_size=24, num_workers=1)
+        dl = DataLoader(ds, batch_size=24, num_workers=1, shuffle=True)
 
         model = DilatedConvolutional(embedding_size=embedding_size, downsample=False)
         test_data, test_label = next(iter(dl))

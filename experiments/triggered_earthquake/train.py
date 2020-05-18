@@ -34,22 +34,22 @@ def train(
         downloadable_data=DownloadableData.TRIGGERED_EARTHQUAKE,
         transform=triggered_earthquake_transform(random_trim_offset=False)
     )
-    ds_train = SiameseDataset(ds_train)
+    # ds_train = SiameseDataset(ds_train)
     train_loader = DataLoader(
-        ds_train, batch_size=batch_size, num_workers=num_workers, sampler=SequentialSampler(ds_train))
+        ds_train, batch_size=batch_size, num_workers=num_workers, shuffle=True)
     test_loader = DataLoader(
-        ds_test, batch_size=batch_size, num_workers=num_workers, sampler=SequentialSampler(ds_test))
+        ds_test, batch_size=batch_size, num_workers=num_workers, shuffle=True)
 
     model = DilatedConvolutional(embedding_size=10)
     params = filter(lambda p: p.requires_grad, model.parameters())
 
     optimizer = torch.optim.Adam(params, lr=learning_rate, weight_decay=weight_decay)
-    loss = DeepClusteringLoss()
+    loss_fn = DeepClusteringLoss()
 
-    trainer = create_engine(model, optimizer, loss, device)
-    evaluator = create_eval(model, {'loss': Loss(loss)}, device)
+    trainer = create_engine(model, optimizer, loss_fn, device)
+    evaluator = create_eval(model, {'dcl': Loss(loss_fn)}, device)
 
-    summary(model, (1,8192))
+    summary(model, (1, gin.query_parameter('triggered_earthquake_transform.target_length')))
 
     # @trainer.on(Events.ITERATION_COMPLETED)
     # def log_training_loss(trainer):
@@ -59,17 +59,17 @@ def train(
     def log_training_results(trainer):
         evaluator.run(train_loader)
         metrics = evaluator.state.metrics
-        writer.add_scalar('Loss/train', metrics['loss'], trainer.state.epoch)
+        writer.add_scalar('Loss/train', trainer.state.output, trainer.state.epoch)
         print("Training Results - Epoch: {} Avg loss: {:.2f}"
-              .format(trainer.state.epoch, metrics['loss']))
+              .format(trainer.state.epoch, trainer.state.output))
 
-    @trainer.on(Events.EPOCH_COMPLETED)
-    def log_testing_results(trainer):
-        evaluator.run(test_loader)
-        metrics = evaluator.state.metrics
-        writer.add_scalar('Loss/test', metrics['loss'], trainer.state.epoch)
-        print("Testing Results - Epoch: {} Avg loss: {:.2f}"
-              .format(trainer.state.epoch, metrics['loss']))
+    # @trainer.on(Events.EPOCH_COMPLETED)
+    # def log_testing_results(trainer):
+    #     evaluator.run(test_loader)
+    #     metrics = evaluator.state.metrics
+    #     writer.add_scalar('Loss/test', metrics['dcl'], trainer.state.epoch)
+    #     print("Testing Results - Epoch: {} Avg loss: {:.2f}"
+    #           .format(trainer.state.epoch, metrics['dcl']))
 
     @trainer.on(Events.EPOCH_COMPLETED)
     def test_acc(trainer):
