@@ -1,16 +1,17 @@
-import os
+import os, pickle, gin, torch
 from ignite.engine import Events, Engine
 from ignite.metrics import Loss
-import torch
+from ignite.handlers import ModelCheckpoint
 from torch.utils.tensorboard import SummaryWriter
-from triggered_earthquake_engine import create_engine, create_eval, test_knn
+from triggered_earthquake_engine import create_engine, create_eval, test_classification, create_classifier, embeddings
 from torch.utils.data import DataLoader, SequentialSampler
 from seisml.datasets import TriggeredEarthquake, SiameseDataset, DatasetMode, triggered_earthquake_transform
 from seisml.networks import DilatedConvolutional
 from seisml.utility.download_data import DownloadableData
 from seisml.metrics.loss import DeepClusteringLoss
 from torchsummary import summary
-import gin
+import numpy as np
+from datetime import datetime
 
 
 @gin.configurable
@@ -19,10 +20,14 @@ def train(
         batch_size,
         num_workers,
         learning_rate,
-        weight_decay):
+        weight_decay,
+        model_dir,
+        prefix,
+        run_dir):
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
-    writer = SummaryWriter()
+    date_time = datetime.now().strftime("%m_%d_%Y__%H_%M")
+    writer = SummaryWriter(os.path.join(run_dir, '{}_{}'.format(prefix, date_time)))
 
     ds_train = TriggeredEarthquake(
         mode=DatasetMode.TRAIN,
@@ -50,30 +55,26 @@ def train(
     evaluator = create_eval(model, {'dcl': Loss(loss_fn)}, device)
 
     summary(model, (1, gin.query_parameter('triggered_earthquake_transform.target_length')))
+    writer.add_graph(model, next(iter(train_loader))[0].unsqueeze(1).to(device))
 
-    # @trainer.on(Events.ITERATION_COMPLETED)
-    # def log_training_loss(trainer):
-    #     print("Epoch[{}] Loss: {:.2f}".format(trainer.state.epoch, trainer.state.output))
+    save_handler = ModelCheckpoint(model_dir, prefix, n_saved=1, create_dir=True, require_empty=False)
+    trainer.add_event_handler(Events.EPOCH_COMPLETED, save_handler, {'model': model})
+
+    @trainer.on(Events.ITERATION_COMPLETED)
+    def log_training_loss(trainer):
+        writer.add_scalar('Iter/train_loss', trainer.state.output, trainer.state.iteration)
 
     @trainer.on(Events.EPOCH_COMPLETED)
     def log_training_results(trainer):
         evaluator.run(train_loader)
-        metrics = evaluator.state.metrics
-        writer.add_scalar('Loss/train', trainer.state.output, trainer.state.epoch)
+        loss = trainer.state.output
+        writer.add_scalar('Loss/train', loss, trainer.state.epoch)
         print("Training Results - Epoch: {} Avg loss: {:.2f}"
               .format(trainer.state.epoch, trainer.state.output))
 
-    # @trainer.on(Events.EPOCH_COMPLETED)
-    # def log_testing_results(trainer):
-    #     evaluator.run(test_loader)
-    #     metrics = evaluator.state.metrics
-    #     writer.add_scalar('Loss/test', metrics['dcl'], trainer.state.epoch)
-    #     print("Testing Results - Epoch: {} Avg loss: {:.2f}"
-    #           .format(trainer.state.epoch, metrics['dcl']))
-
     @trainer.on(Events.EPOCH_COMPLETED)
     def test_acc(trainer):
-        acc, cm = test_knn(
+        acc, cm, _, = test_classification(
             model,
             gin.query_parameter('triggered_earthquake_dataset.testing_quakes'),
             device,
@@ -83,7 +84,59 @@ def train(
         print('Testing Accurarcy: {:.2f}'.format(acc))
         print(cm)
 
+    def report_embeddings(trainer):
+        train_loader = DataLoader(ds_train, batch_size=1)
+        test_loader = DataLoader(ds_test, batch_size=1)
+
+        text_labels = gin.query_parameter('triggered_earthquake_dataset.labels')
+        train_embeddings, train_labels = embeddings(model, train_loader, device=device)
+        train_labels = [text_labels[np.argmax(l)] for l in train_labels]
+        writer.add_embedding(
+            np.array(train_embeddings),
+            metadata=train_labels,
+            global_step=trainer.state.epoch,
+            tag='train_embeddings'
+        )
+
+        test_embeddings, test_labels = embeddings(model, test_loader, device=device)
+        test_labels = [text_labels[np.argmax(l)] for l in test_labels]
+        writer.add_embedding(
+            np.array(test_embeddings),
+            metadata=test_labels,
+            global_step=trainer.state.epoch,
+            tag='test_embeddings'
+        )
+
+    trainer.add_event_handler(Events.EPOCH_COMPLETED(once=1), report_embeddings)
+    trainer.add_event_handler(Events.EPOCH_COMPLETED(every=5), report_embeddings)
+
+    @trainer.on(Events.EPOCH_COMPLETED)
+    def save_classifier(_):
+        # save classifier only trained on training data
+        _, _, classifier = test_classification(
+            model,
+            gin.query_parameter('triggered_earthquake_dataset.testing_quakes'),
+            device,
+            gin.query_parameter('triggered_earthquake_dataset.data_dir')
+        )
+        with open(os.path.join(model_dir, '{}_classifier.p'.format(prefix)), 'wb') as f:
+            pickle.dump(classifier, f)
+
+        # # save classifier trained on all data (for running inference)
+        ds = TriggeredEarthquake(
+            data_dir=gin.query_parameter('triggered_earthquake_dataset.data_dir'),
+            testing_quakes=[],
+            downloadable_data=DownloadableData.TRIGGERED_EARTHQUAKE,
+            mode=DatasetMode.INFERENCE,
+            transform=triggered_earthquake_transform(random_trim_offset=False),
+        )
+        loader = DataLoader(ds, batch_size=1, num_workers=10, shuffle=True)
+        classifier_alldata = create_classifier(model, loader, type='svc', device=device)
+        with open(os.path.join(model_dir, '{}_svc_classifier.p'.format(prefix)), 'wb') as f:
+            pickle.dump(classifier_alldata, f)
+
     trainer.run(train_loader, max_epochs=epochs)
+    writer.close()
 
 
 if __name__ == '__main__':

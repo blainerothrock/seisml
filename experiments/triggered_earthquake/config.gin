@@ -3,6 +3,9 @@ train.num_workers = 10
 train.learning_rate = 2e-5
 train.weight_decay = 1e-1
 train.epochs = 100
+train.model_dir='./experiments/triggered_earthquake/models/'
+train.prefix='te'
+train.run_dir='experiments/triggered_earthquake/runs'
 
 triggered_earthquake_transform.sampling_rate=20.0
 triggered_earthquake_transform.max_freq=8.0
@@ -15,4 +18,4 @@ triggered_earthquake_transform.random_trim_offset=True
 triggered_earthquake_dataset.data_dir='/home/b/.seisml/data/triggered_earthquakes/'
 triggered_earthquake_dataset.force_download=False
 triggered_earthquake_dataset.labels=['positive', 'negative']
-triggered_earthquake_dataset.testing_quakes=['SAC_20030927_XF_prem']
+triggered_earthquake_dataset.testing_quakes=['SAC_20021102_XF_prem']

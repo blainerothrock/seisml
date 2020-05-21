@@ -57,7 +57,7 @@ def visualize_embedding(embeddings, labels, output_file, pca=None):
     from sklearn.decomposition import PCA
     import matplotlib.pyplot as plt
     if pca is None:
-        pca = PCA(n_components=2)
+        pca = PCA(n_components=len(np.unique(labels)))
         pca.fit(embeddings)
     output = pca.transform(embeddings)
     colors = np.argmax(labels, axis=-1)
