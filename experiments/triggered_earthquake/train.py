@@ -3,7 +3,7 @@ from ignite.engine import Events, Engine
 from ignite.metrics import Loss
 from ignite.handlers import ModelCheckpoint
 from torch.utils.tensorboard import SummaryWriter
-from triggered_earthquake_engine import create_engine, create_eval, test_classification, create_classifier, embeddings
+from utils import create_engine, create_eval, test_classification, create_classifier, get_embeddings
 from torch.utils.data import DataLoader, SequentialSampler
 from seisml.datasets import TriggeredEarthquake, SiameseDataset, DatasetMode, triggered_earthquake_transform
 from seisml.networks import DilatedConvolutional
@@ -89,19 +89,19 @@ def train(
         test_loader = DataLoader(ds_test, batch_size=1)
 
         text_labels = gin.query_parameter('triggered_earthquake_dataset.labels')
-        train_embeddings, train_labels = embeddings(model, train_loader, device=device)
-        train_labels = [text_labels[np.argmax(l)] for l in train_labels]
+        train_embeddings, train_labels = get_embeddings(model, train_loader, device=device)
+        train_labels = [text_labels[np.argmax(l)] for l in train_labels.squeeze(1)]
         writer.add_embedding(
-            np.array(train_embeddings),
+            train_embeddings.squeeze(1),
             metadata=train_labels,
             global_step=trainer.state.epoch,
             tag='train_embeddings'
         )
 
-        test_embeddings, test_labels = embeddings(model, test_loader, device=device)
-        test_labels = [text_labels[np.argmax(l)] for l in test_labels]
+        test_embeddings, test_labels = get_embeddings(model, test_loader, device=device)
+        test_labels = [text_labels[np.argmax(l)] for l in test_labels.squeeze(1)]
         writer.add_embedding(
-            np.array(test_embeddings),
+            test_embeddings.squeeze(1),
             metadata=test_labels,
             global_step=trainer.state.epoch,
             tag='test_embeddings'
