@@ -103,7 +103,7 @@ class TriggeredEarthquake(Dataset):
             testing_quakes=['SAC_20100227_Chile_prem'],
             transform=triggered_earthquake_transform()):
 
-        if not os.path.isdir(os.path.expanduser(data_dir)) or force_download:
+        if (not os.path.isdir(os.path.expanduser(data_dir)) or force_download) and downloadable_data is not None:
             download_and_verify(downloadable_data.value, downloadable_data_path(downloadable_data))
 
         self.labels = labels
@@ -138,7 +138,7 @@ class TriggeredEarthquake(Dataset):
     def __getitem__(self, i):
         file = self.processed_files[i]
         p = torch.load(open(file, 'rb'))
-        return p['data'], p['label']
+        return p['data'], p['one_hot_label']
 
     def preprocess_all_and_save(self):
         prepare_path = os.path.join(self.data_dir, 'prepare_{}'.format(self.mode.value))
@@ -168,7 +168,7 @@ class TriggeredEarthquake(Dataset):
 
             f = '%s_%s_%s.pt' % (quake, label, file_name)
             torch.save(
-                {'data': data['t'], 'label': one_hot, 'quake': quake},
+                {'data': data['t'], 'one_hot_label': one_hot, 'label': label, 'file_name': file_name, 'quake': quake},
                 open(os.path.join(prepare_path, f), 'wb')
             )
             self.processed_files.append(os.path.join(prepare_path, f))

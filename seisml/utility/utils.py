@@ -15,6 +15,7 @@ model_functions = {
     'conv': networks.DilatedConvolutional
 }
 
+
 def show_model(model):
     print(model)
     num_parameters = 0
@@ -23,10 +24,12 @@ def show_model(model):
             num_parameters += np.cumprod(p.size())[-1]
     print('Number of parameters: %d' % num_parameters)
 
+
 def save_checkpoint(state, is_best, filename):
     torch.save(state, filename)
     if is_best:
         shutil.copyfile(filename, filename[:-3] + '_best.h5')
+
 
 def load_class_from_params(params, class_func):
     arguments = inspect.getfullargspec(class_func).args[1:]
@@ -34,6 +37,7 @@ def load_class_from_params(params, class_func):
         params['input_size'] = params['length']
     filtered_params = {p: params[p] for p in params if p in arguments}
     return class_func(**filtered_params)
+
 
 def load_model(run_directory, device_target='cuda'):
     with open(os.path.join(run_directory, 'args.json'), 'r') as f:
@@ -53,6 +57,7 @@ def load_model(run_directory, device_target='cuda'):
 
     return model, args, device
 
+
 def visualize_embedding(embeddings, labels, output_file, pca=None):
     from sklearn.decomposition import PCA
     import matplotlib.pyplot as plt
@@ -63,8 +68,8 @@ def visualize_embedding(embeddings, labels, output_file, pca=None):
     colors = np.argmax(labels, axis=-1)
     plt.style.use('classic')
     plt.scatter(output[:, 0], output[:, 1], c=colors, cmap='coolwarm')
-    #plt.xlim([-1.0, 1.0])
-    #plt.ylim([-1.0, 1.0])
+    # plt.xlim([-1.0, 1.0])
+    # plt.ylim([-1.0, 1.0])
     plt.xlabel('PCA0')
     plt.ylabel('PCA1')
     plt.title('Visualization of learned embedding space')
@@ -81,11 +86,13 @@ def save_file(file_name, data):
     pickle.dump(data, f)
     f.close()
 
+
 def load_file(file_name):
     f = open(file_name, 'rb')
     data = pickle.load(f)
     f.close()
     return data
+
 
 def butter_lowpass(cutoff, fs, order=5):
     nyq = 0.5 * fs
@@ -93,11 +100,13 @@ def butter_lowpass(cutoff, fs, order=5):
     b, a = butter(order, normal_cutoff, btype='low', analog=False)
     return b, a
 
+
 def butter_highpass(cutoff: object, fs: object, order: object = 5) -> object:
     nyq = 0.5 * fs
     normal_cutoff = cutoff / nyq
     b, a = butter(order, normal_cutoff, btype='high', analog=False)
     return b, a
+
 
 def butter_bandpass(lowcut, highcut, fs, order=5):
     nyq = 0.5 * fs
@@ -105,6 +114,7 @@ def butter_bandpass(lowcut, highcut, fs, order=5):
     high = highcut / nyq
     b, a = butter(order, [low, high], btype='band')
     return b, a
+
 
 def parallel_process(array, function, n_jobs=4, use_kwargs=False, front_num=1):
     """
@@ -120,17 +130,17 @@ def parallel_process(array, function, n_jobs=4, use_kwargs=False, front_num=1):
         Returns:
             [function(array[0]), function(array[1]), ...]
     """
-    #We run the first few iterations serially to catch bugs
+    # We run the first few iterations serially to catch bugs
     if front_num > 0:
         front = [function(**a) if use_kwargs else function(a) for a in array[:front_num]]
     else:
         front = []
-    #If we set n_jobs to 1, just run a list comprehension. This is useful for benchmarking and debugging.
-    if n_jobs==1:
+    # If we set n_jobs to 1, just run a list comprehension. This is useful for benchmarking and debugging.
+    if n_jobs == 1:
         return front + [function(**a) if use_kwargs else function(a) for a in tqdm(array[front_num:])]
-    #Assemble the workers
+    # Assemble the workers
     with ProcessPoolExecutor(max_workers=n_jobs) as pool:
-        #Pass the elements of array into function
+        # Pass the elements of array into function
         if use_kwargs:
             futures = [pool.submit(function, **a) for a in array[front_num:]]
         else:
@@ -141,11 +151,11 @@ def parallel_process(array, function, n_jobs=4, use_kwargs=False, front_num=1):
             'unit_scale': True,
             'leave': True
         }
-            #Print out the progress as tasks complete
+        # Print out the progress as tasks complete
         for f in tqdm(as_completed(futures), **kwargs):
             pass
     out = []
-    #Get the results from the futures.
+    # Get the results from the futures.
     for i, future in tqdm(enumerate(futures)):
         try:
             out.append(future.result())

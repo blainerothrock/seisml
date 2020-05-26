@@ -102,10 +102,8 @@ def get_embeddings(model, loader, device=torch.device('cpu')):
         embeddings.append(embedding)
         labels.append(label)
 
-    print(embeddings[0].shape)
     embeddings = np.array(embeddings)
     labels = np.array(labels)
-    print(embeddings.shape)
 
     return embeddings, labels
 

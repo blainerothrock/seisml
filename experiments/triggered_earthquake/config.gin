@@ -2,10 +2,12 @@ train.batch_size = 128
 train.num_workers = 10
 train.learning_rate = 2e-5
 train.weight_decay = 1e-1
-train.epochs = 100
-train.model_dir='./experiments/triggered_earthquake/models/'
-train.prefix='te'
+train.epochs = 1
+train.model_dir='/home/b/.seisml/experiments/triggered_earthquakes/'
+train.prefix='test_infer'
 train.run_dir='experiments/triggered_earthquake/runs'
+train.embedding_size=10
+train.num_layers=10
 
 triggered_earthquake_transform.sampling_rate=20.0
 triggered_earthquake_transform.max_freq=8.0
