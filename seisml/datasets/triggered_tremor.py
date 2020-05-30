@@ -7,15 +7,31 @@ import h5py
 
 from seisml.utility.download_data import download_and_verify, DownloadableData, downloadable_data_path
 
+
 def triggered_tremor_split():
+    """
+    Helper to get training and testing datasets
+
+    Returns:
+        training dataset and testing dataset
+    """
     train = TriggeredTremor(mode='train')
     test = TriggeredTremor(mode='test')
     return train, test
+
 
 @gin.configurable(blacklist=['mode'])
 class TriggeredTremor(Dataset):
     """
     Data for Triggered Tremor observations. Data is loaded from a single HD5
+
+    Parameters:
+       data_dir (string): location to persist the data
+       force_download (bool): use already persisted data
+       downloadable_data (seisml.utility.DownloadableData): predefined dataset
+       mode (string): 'train' or 'test' set
+       training_split (float): percent of training data
+       seed (int): random seed for splitting the data. should always be the same for training and testing datasets.
     """
 
     def __init__(

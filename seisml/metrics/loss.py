@@ -41,6 +41,7 @@ class DeepClusteringLoss(nn.Module):
 class WhitenedKMeansLoss(nn.Module):
     """
     Computes the whitened K-Means loss with weights. Equation (6) in [1].
+    code from nussl (https://github.com/nussl/nussl)
     References:
     [1] Wang, Z. Q., Le Roux, J., & Hershey, J. R. (2018, April).
         Alternative Objective Functions for Deep Clustering.
