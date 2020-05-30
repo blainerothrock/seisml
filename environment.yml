@@ -2,6 +2,7 @@ name: seisml
 channels:
   - conda-forge
   - defaults
+  - pytorch
 dependencies:
   - python=3.7
   - pytorch
