@@ -36,12 +36,12 @@ class TestTriggeredTremor:
         assert np.sum(sample[1].numpy()) == 1, 'one-hot encoding should contain exactly 1 class'
 
     def test_train_test_split(self):
-        ds_train, ds_test = triggered_tremor_split()
+        ds_train, ds_test = triggered_tremor_split(batch_size=1)
 
         for train_batch in ds_train:
             train_data, _ = train_batch
             for test_batch in ds_test:
                 test_data, _ = test_batch
 
-                assert not (train_data.numpy() == test_data.numpy()).all(), 'training sample should match testing'
+                assert not (train_data.numpy() == test_data.numpy()).all(), 'training sample should not match testing'
 

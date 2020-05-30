@@ -1,6 +1,6 @@
 import os, shutil
 import torch
-from torch.utils.data import Dataset
+from torch.utils.data import Dataset, SubsetRandomSampler, DataLoader
 import numpy as np
 import gin
 import h5py
@@ -8,19 +8,35 @@ import h5py
 from seisml.utility.download_data import download_and_verify, DownloadableData, downloadable_data_path
 
 
-def triggered_tremor_split():
+@gin.configurable()
+def triggered_tremor_split(training_split=0.7, batch_size=128, shuffle=True):
     """
     Helper to get training and testing datasets
 
     Returns:
-        training dataset and testing dataset
+        training dataset and testing dataloaders
     """
-    train = TriggeredTremor(mode='train')
-    test = TriggeredTremor(mode='test')
-    return train, test
+    ds = TriggeredTremor()
+
+    ds_size = len(ds)
+    indices = list(range(ds_size))
+    offset = int(np.floor(training_split * ds_size))
+
+    if shuffle:
+        np.random.shuffle(indices)
+
+    train_indices, test_indices = indices[:offset], indices[offset+1:]
+
+    train_sampler = SubsetRandomSampler(train_indices)
+    test_sampler = SubsetRandomSampler(test_indices)
+
+    train_dl = DataLoader(ds, batch_size=batch_size, sampler=train_sampler)
+    test_dl = DataLoader(ds, batch_size=batch_size, sampler=test_sampler)
+
+    return train_dl, test_dl
 
 
-@gin.configurable(blacklist=['mode'])
+@gin.configurable()
 class TriggeredTremor(Dataset):
     """
     Data for Triggered Tremor observations. Data is loaded from a single HD5
@@ -36,20 +52,15 @@ class TriggeredTremor(Dataset):
 
     def __init__(
             self,
-            data_dir=os.path.expanduser('~/.seisml/data/triggered_tremor'),
+            data_dir=os.path.expanduser('~/.seisml/data/triggered_tremor_sample'),
             force_download=False,
-            downloadable_data=DownloadableData.TRIGGERED_TREMOR,
-            mode='train',
-            training_split=0.7,
-            seed=42):
+            downloadable_data=DownloadableData.TRIGGERED_TREMOR_SAMPLE):
 
         # download data is it does not exist in path
         if not os.path.isdir(os.path.expanduser(data_dir)) or force_download:
             download_and_verify(downloadable_data.value, downloadable_data_path(downloadable_data))
 
         self.data_dir = data_dir
-        self.mode = mode
-        self.training_split = training_split
 
         filename = os.path.join(data_dir, '{}.h5'.format(downloadable_data.value))
         f = h5py.File(filename, 'r')
@@ -57,22 +68,8 @@ class TriggeredTremor(Dataset):
         X = f.get('X').value
         y = f.get('y').value
 
-        np.random.seed(seed)
-        randomize = np.arange(len(y))
-        np.random.shuffle(randomize)
-
-        offset = int(len(y) * training_split)
-
-        if mode == 'train':
-            self.X = X[randomize][:offset]
-            self.y = y[randomize][:offset]
-        elif mode == 'test':
-            self.X = X[randomize][offset:]
-            self.y = y[randomize][offset:]
-
-        # convert to tensors
-        self.y = torch.nn.functional.one_hot(torch.Tensor(self.y).long(), 2)
-        self.X = torch.Tensor(self.X).float()
+        self.y = torch.nn.functional.one_hot(torch.Tensor(y).long(), 2)
+        self.X = torch.Tensor(X).float()
 
     def __len__(self):
         return len(self.y)
