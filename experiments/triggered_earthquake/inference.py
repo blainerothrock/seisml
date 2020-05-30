@@ -68,10 +68,6 @@ def inference(experiment_path, earthquake_path, labels=None):
             'classification': classification
         })
 
-    # embeddings = np.vstack(embeddings)
-    # embeddings_path = os.path.join(experiment_path, '{}_embeddings.ptk'.format(result_name))
-    # torch.save(embeddings, open(embeddings_path, 'wb'))
-
 
 
 if __name__ == '__main__':
