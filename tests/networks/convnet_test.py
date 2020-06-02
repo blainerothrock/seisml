@@ -19,7 +19,7 @@ class TestConvNet:
 
         summary(model, (1, 100000))
 
-        device = torch.device('cuda' if torch.cuda else 'cpu')
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
         model.to(device)
         model.train()
