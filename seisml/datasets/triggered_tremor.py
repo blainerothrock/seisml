@@ -4,6 +4,7 @@ from torch.utils.data import Dataset, SubsetRandomSampler, DataLoader
 import numpy as np
 import gin
 import h5py
+from  scipy import signal
 
 from seisml.utility.download_data import download_and_verify, DownloadableData, downloadable_data_path
 
@@ -58,15 +59,16 @@ class TriggeredTremor(Dataset):
 
         # download data is it does not exist in path
         if not os.path.isdir(os.path.expanduser(data_dir)) or force_download:
-            download_and_verify(downloadable_data.value, downloadable_data_path(downloadable_data))
+            download_and_verify(downloadable_data, downloadable_data_path(downloadable_data))
 
-        self.data_dir = data_dir
+        self.data_dir = os.path.expanduser(data_dir)
 
-        filename = os.path.join(data_dir, '{}.h5'.format(downloadable_data.value))
+        filename = os.path.join(self.data_dir, '{}.h5'.format(downloadable_data))
         f = h5py.File(filename, 'r')
 
-        X = f.get('X').value
-        y = f.get('y').value
+        # X = np.vstack([signal.resample(x, 10000) for x in f['X']])
+        X = f['X']
+        y = f['y']
 
         self.y = torch.nn.functional.one_hot(torch.Tensor(y).long(), 2)
         self.X = torch.Tensor(X).float()

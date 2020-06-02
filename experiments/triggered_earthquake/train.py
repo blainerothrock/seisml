@@ -3,7 +3,7 @@ from ignite.engine import Events, Engine
 from ignite.metrics import Loss
 from ignite.handlers import ModelCheckpoint
 from torch.utils.tensorboard import SummaryWriter
-from utils import create_engine, create_eval, test_classification, create_classifier, get_embeddings
+from experiments.utils import create_engine, create_eval, test_classification, create_classifier, get_embeddings
 from torch.utils.data import DataLoader, SequentialSampler
 from seisml.datasets import TriggeredEarthquake, SiameseDataset, DatasetMode, triggered_earthquake_transform
 from seisml.networks import DilatedConvolutional

@@ -8,7 +8,7 @@ from torch.utils.data import DataLoader
 class TestTriggeredTremor:
 
     def test_download(self):
-        dd = DownloadableData.TRIGGERED_TREMOR
+        dd = DownloadableData.TRIGGERED_TREMOR_100HZ
 
         ds = TriggeredTremor(
             data_dir=os.path.expanduser('~/.seisml/data/' + dd.value),

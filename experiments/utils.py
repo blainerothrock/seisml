@@ -149,7 +149,7 @@ def create_classifier(model, loader, type='svc', device=torch.device('cpu')):
     :param device: pytorch device
     :return: classification model
     """
-    embeddings, labels = get_embeddings(model, loader, device)
+    embeddings, labels = get_embeddings(model, loader.dataset, device)
     embeddings = embeddings.squeeze(1)
     labels = labels.squeeze(1)
 
@@ -172,7 +172,7 @@ def report_accurarcy(model, svc, loader, device=torch.device('cpu')):
     :param device: pytorch device
     :return: accurarcy (float), confusion matrix (string)
     """
-    embeddings, labels = get_embeddings(model, loader, device)
+    embeddings, labels = get_embeddings(model, loader.dataset, device)
 
     predictions = [svc.predict(e) for e in embeddings]
     ground_truths = [np.argmax(l, axis=-1) for l in labels]

@@ -1,0 +1,16 @@
+train.prefix='triggered_tremor_20hz'
+train.epochs=100
+train.embedding_size=10
+train.num_layers=10
+train.learning_rate=0.01
+train.weight_decay=1e-1
+train.model_dir='/home/b/.seisml/experiments/triggered_tremor/'
+train.run_dir='experiments/triggered_tremor/runs'
+
+TriggeredTremor.data_dir='~/.seisml/data/triggered_tremor_20hz'
+TriggeredTremor.force_download=False
+TriggeredTremor.downloadable_data='triggered_tremor_20hz'
+
+triggered_tremor_split.training_split=0.7
+triggered_tremor_split.batch_size=64
+triggered_tremor_split.shuffle=True

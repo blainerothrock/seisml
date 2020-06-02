@@ -9,8 +9,9 @@ from tqdm import tqdm
 class DownloadableData(str, Enum):
     SAMPLE_DATA = 'triggered_earthquake_sample_data'
     TRIGGERED_EARTHQUAKE = 'triggered_earthquakes'
-    TRIGGERED_TREMOR = 'triggered_tremor'
+    TRIGGERED_TREMOR_100HZ = 'triggered_tremor'
     TRIGGERED_TREMOR_SAMPLE = 'triggered_tremor_sample'
+    TRIGGERED_TREMOR_20HZ = 'triggered_tremor_20hz'
 
 
 def downloadable_data_path(downloadable_data):
@@ -18,10 +19,12 @@ def downloadable_data_path(downloadable_data):
         return 'https://blainerothrock-public.s3.us-east-2.amazonaws.com/seisml/triggered_earthquake_sample_data.tar.gz'
     if downloadable_data == DownloadableData.TRIGGERED_EARTHQUAKE:
         return 'https://blainerothrock-public.s3.us-east-2.amazonaws.com/seisml/triggered_earthquakes.tar.gz'
-    if downloadable_data == DownloadableData.TRIGGERED_TREMOR:
+    if downloadable_data == DownloadableData.TRIGGERED_TREMOR_100HZ:
         return 'https://blainerothrock-public.s3.us-east-2.amazonaws.com/seisml/triggered_tremor.tar.gz'
     if downloadable_data == DownloadableData.TRIGGERED_TREMOR_SAMPLE:
         return 'https://blainerothrock-public.s3.us-east-2.amazonaws.com/seisml/triggered_tremor_sample.tar.gz'
+    if downloadable_data == DownloadableData.TRIGGERED_TREMOR_20HZ:
+        return 'https://blainerothrock-public.s3.us-east-2.amazonaws.com/seisml/triggered_tremor_20hz.tar.gz'
 
 DATA_PATH = os.path.expanduser('~/.seisml/data/')
 

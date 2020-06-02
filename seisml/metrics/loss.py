@@ -57,18 +57,25 @@ class WhitenedKMeansLoss(nn.Module):
     def __init__(self):
         super(WhitenedKMeansLoss, self).__init__()
 
-    def forward(self, embedding, assignments, weights):
+    def forward(self, embedding, assignments, weights=None):
         batch_size = embedding.shape[0]
         embedding_size = embedding.shape[-1]
         num_sources = assignments.shape[-1]
-        weights = weights.view(batch_size, -1, 1)
+
+        if weights is not None:
+            weights = weights.view(batch_size, -1, 1)
+
         # make everything unit norm
         embedding = embedding.reshape(batch_size, -1, embedding_size)
         embedding = nn.functional.normalize(embedding, dim=-1, p=2)
         assignments = assignments.view(batch_size, -1, num_sources)
         assignments = nn.functional.normalize(assignments, dim=-1, p=2)
-        assignments = weights * assignments
-        embedding = weights * embedding
+
+        if weights is not None:
+            assignments = weights * assignments
+            embedding = weights * embedding
+
+
         embedding_dim_identity = torch.eye(
             embedding_size, device=embedding.device).float()
         source_dim_identity = torch.eye(
