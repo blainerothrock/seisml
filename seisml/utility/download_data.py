@@ -25,6 +25,8 @@ def downloadable_data_path(downloadable_data):
         return 'https://blainerothrock-public.s3.us-east-2.amazonaws.com/seisml/triggered_tremor_sample.tar.gz'
     if downloadable_data == DownloadableData.TRIGGERED_TREMOR_20HZ:
         return 'https://blainerothrock-public.s3.us-east-2.amazonaws.com/seisml/triggered_tremor_20hz.tar.gz'
+    if downloadable_data == DownloadableData.SCSN_WAVE_SAMPLE:
+        return 'https://service.scedc.caltech.edu/ftp/ross_etal_2018_bssa/scsn_ps_2000_2017_shuf.hdf5'
 
 DATA_PATH = os.path.expanduser('~/.seisml/data/')
 
