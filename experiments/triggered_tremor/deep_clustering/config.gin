@@ -4,8 +4,8 @@ train.embedding_size=10
 train.num_layers=10
 train.learning_rate=0.01
 train.weight_decay=1e-1
-train.model_dir='/home/b/.seisml/experiments/triggered_tremor/'
-train.run_dir='experiments/triggered_tremor/runs'
+train.model_dir='/home/b/.seisml/experiments/triggered_tremor/deep_clustering'
+train.run_dir='experiments/triggered_tremor/deep_clustering/runs'
 
 TriggeredTremor.data_dir='~/.seisml/data/triggered_tremor_20hz'
 TriggeredTremor.force_download=False

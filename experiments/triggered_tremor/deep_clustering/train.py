@@ -4,10 +4,8 @@ from ignite.metrics import Loss
 from ignite.handlers import ModelCheckpoint
 from torch.utils.tensorboard import SummaryWriter
 from experiments.utils import create_engine, create_eval, test_classification, create_classifier, get_embeddings, report_accurarcy
-from torch.utils.data import DataLoader, SequentialSampler
 from seisml.datasets import triggered_tremor_split
 from seisml.networks import DilatedConvolutional
-from seisml.utility.download_data import DownloadableData
 from seisml.metrics.loss import DeepClusteringLoss, WhitenedKMeansLoss
 from torchsummary import summary
 import numpy as np
@@ -86,6 +84,6 @@ def train(
 
 if __name__ == '__main__':
     gin.parse_config_file('config.gin')
-    os.chdir('../../')
-    print('current working directory: %s' % os.getcwd())
+    os.chdir('../../../../')
+
     train()

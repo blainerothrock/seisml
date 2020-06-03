@@ -13,19 +13,19 @@ class TestConvNet:
     def test_train(self):
         ds_train, ds_test = triggered_tremor_split()
 
-        model = ConvNet(input_size=100000, num_layers=3, hidden_size=64, num_classes=2)
+        model = ConvNet(input_shape=(1, 100000))
         optimizer = Adam(model.parameters(), lr=0.001)
         loss = CrossEntropyLoss()
 
         summary(model, (1, 100000))
 
-        device = torch.device('cuda' if torch.cuda else 'cpu')
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
         model.to(device)
         model.train()
 
         best_loss = 10000
-        for i in range(5):
+        for i in range(1):
             history = []
             for batch in ds_train:
                 data, label = batch
