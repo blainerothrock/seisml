@@ -11,21 +11,27 @@ from torch.nn import CrossEntropyLoss
 class TestConvNet:
 
     def test_train(self):
-        ds_train, ds_test = triggered_tremor_split()
+        ds_train, ds_test = triggered_tremor_split(batch_size=1)
 
-        model = ConvNet(input_shape=(1, 100000))
-        optimizer = Adam(model.parameters(), lr=0.001)
+        model = ConvNet(
+            input_shape=(1, 100000),
+            num_layers=3,
+            hidden_dims=(16,16,16),
+            conv_kernel=2,
+            pool_factor=10
+        )
+        optimizer = Adam(model.parameters(), lr=0.0001)
         loss = CrossEntropyLoss()
 
         summary(model, (1, 100000))
 
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        device = torch.device('cpu')
 
         model.to(device)
         model.train()
 
         best_loss = 10000
-        for i in range(1):
+        for i in range(3):
             history = []
             for batch in ds_train:
                 data, label = batch
@@ -41,10 +47,11 @@ class TestConvNet:
                 _loss.backward()
                 optimizer.step()
 
-                history.append(_loss.detach().cpu().item())
+                history.append(_loss.item())
 
             epoch_best = np.mean(history)
             assert epoch_best < best_loss, 'loss should go down'
             best_loss = epoch_best
+            history = []
 
 
