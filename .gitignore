@@ -3,6 +3,7 @@ _old/
 runs/
 htmlcov/
 models/
+.data/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
