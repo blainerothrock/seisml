@@ -1,3 +1,5 @@
+.DS_Store
+
 .idea/
 _old/
 runs/
@@ -134,3 +136,4 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+/experiments/triggered_tremor/convnet/runs/

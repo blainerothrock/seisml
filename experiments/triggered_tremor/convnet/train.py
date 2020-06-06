@@ -26,7 +26,7 @@ def train(
 
     train_dl, test_dl = triggered_tremor_split()
 
-    model = ConvNet(input_shape=(1, 20000), num_layers=3, hidden_dims=(8, 16, 32), pool_factor=(2, 2, 2), conv_kernel=2, num_classes=2).to(device)
+    model = ConvNet().to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     loss = torch.nn.CrossEntropyLoss()
 
