@@ -3,6 +3,7 @@ import requests
 from time import sleep
 
 import obspy
+
 from obspy import read
 from tqdm import tqdm
 
@@ -76,9 +77,9 @@ def split_data(raw_dir, save_dir, stride=3, length=12, starttime=None, endtime=N
 if __name__ == '__main__':
     split_data(
         raw_dir=os.path.expanduser('~/.seisml/mars/all_BH/raw'),
-        save_dir=os.path.expanduser('~/.seisml/mars/all_BH/prepared_12-3_oct-dec'),
+        save_dir=os.path.expanduser('~/.seisml/mars/all_BH/prepared_12-3_oct01-010'),
         stride=3,
         length=12,
         starttime=obspy.UTCDateTime('2019-10-01T00:00:00'),
-        endtime=obspy.UTCDateTime('2019-12-31T23:59:59')
+        endtime=obspy.UTCDateTime('2019-10-10T23:59:59')
     )

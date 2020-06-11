@@ -48,7 +48,7 @@ class TestDilatedConvolutional:
         assert len(embedding_a[-1]) == embedding_size, 'output should match embedding size'
         _loss_a = l(embedding_a, test_label.float())
 
-        for _ in range(4):
+        for _ in range(7):
             for data, label in dl:
                 data = data.view(-1, 1, data.shape[-1])
                 output = model(data)

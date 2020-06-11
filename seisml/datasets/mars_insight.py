@@ -4,6 +4,7 @@ import obspy
 import torch
 from torch.utils.data import Dataset
 from seisml.core.transforms import DetrendFilter, DetrendType, ToTensor, Compose
+from seisml.utility.download_data import download_and_verify, DownloadableData, downloadable_data_path
 
 def mars_insight_transform():
     transforms = [
