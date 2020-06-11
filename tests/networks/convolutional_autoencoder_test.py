@@ -13,17 +13,18 @@ class TestConvAutoEncoder:
         # (batch_size, channel, samples)
         sample = torch.rand(16, 3, 200)
 
-        model = ConvAutoEncoder(num_layers=5, kernels=2, dims=(3, 8, 16, 16, 32, 32))
+        model = ConvAutoEncoder(embedding_size=10, sample_size=200, num_conv_layers=5, kernels=2, dims=(3, 8, 16, 16, 32, 32))
+        model.eval()
+        X, _ = model(sample)
+        assert X.shape == sample.shape, 'model should produce the same size output'
+        summary(model, sample)
+
+        model = ConvAutoEncoder(embedding_size=10, sample_size=200, num_conv_layers=1, kernels=2, dims=(3, 8))
         model.eval()
         X, _ = model(sample)
         assert X.shape == sample.shape, 'model should produce the same size output'
 
-        model = ConvAutoEncoder(num_layers=1, kernels=2, dims=(3, 8))
-        model.eval()
-        X, _ = model(sample)
-        assert X.shape == sample.shape, 'model should produce the same size output'
-
-        model = ConvAutoEncoder(num_layers=2, kernels=(2, 4), dims=(3, 8, 16))
+        model = ConvAutoEncoder(embedding_size=10, sample_size=200, num_conv_layers=2, kernels=(2, 4), dims=(3, 8, 16))
         model.eval()
         X, _ = model(sample)
         assert X.shape == sample.shape, 'model should produce the same size output'
@@ -37,7 +38,7 @@ class TestConvAutoEncoder:
 
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-        model = ConvAutoEncoder(num_layers=3, kernels=2, dims=(3, 6, 12, 24)).to(device)
+        model = ConvAutoEncoder(embedding_size=10, sample_size=50, num_conv_layers=3, kernels=2, dims=(3, 6, 12, 24)).to(device)
         model.train()
 
         summary(model, sample)
