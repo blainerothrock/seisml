@@ -67,7 +67,8 @@ data_folder/
     ...
 ```
 
-## To Run
+## Run
+### Training
 * clone and create Anaconda invironment (see root [readme](../../README.md))
 * configure `config.gin` -- current version matches paper parameters
 * train the model: 
@@ -78,9 +79,28 @@ python train.py
 ```shell script
 tensorboard --logdir runs
 ```
-* **TODO**: results will be posted ...
-* **TODO**: saved model will be posted ...
-* **TODO**: inference on new data ...
+
+### Inference
+**After training a model**: update the file paths in `inference.py` to match the desired model file (named with the prefix from training in `gin.config`) and the location to **new data** and where results will be saved. `labels` must match the labels used in training. then run:
+```shell script
+python inference.py
+```
+results will be saved to a `.csv` file in the desired results directory.
+
+## Results
+The current model and configuration are able to reproduce the results of the original paper. This implementation adds more reporting with tensorboard and identified some interesting accuracy patterns in training. The following is a image of **testing** accurarcy and loss over training epochs:
+
+![training results](https://blainerothrock-public.s3.us-east-2.amazonaws.com/seisml/triggered_earthquake/Screenshot+from+2020-05-20+19-05-43.png).
+
+The loss looks normal, but the pattern in accuracy poses questions. This pattern, although varying, is reproducible where accuracy is high after 1 epoch, dips lower and then springs back up to slightly higher than at epoch 1. The embeddings at each epoch is also saved in tensor board can it can be visibly seen the model is learning separation when apply t-distributed stochastic neighbor embedding (T-SNE) to the embeddings: 
+
+#### T-SNE at Epoch 1
+![t-sne epoch 1](https://blainerothrock-public.s3.us-east-2.amazonaws.com/seisml/triggered_earthquake/Screenshot+from+2020-05-20+19-17-40.png)
+
+#### T-SNE at Epoch 100
+![t-sne epoch 100](https://blainerothrock-public.s3.us-east-2.amazonaws.com/seisml/triggered_earthquake/Screenshot+from+2020-05-20+19-18-48.png)
+
+We are unsure why this is occuring. Next steps is to attempt new clustering methods and comare results. We would like to try using a Auto Encoder for clustering.
 
         
         

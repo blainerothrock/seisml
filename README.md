@@ -2,18 +2,26 @@
 ![Test](https://github.com/blainerothrock/seisml/workflows/Test/badge.svg)
 [![codecov](https://codecov.io/gh/blainerothrock/seisml/branch/master/graph/badge.svg)](https://codecov.io/gh/blainerothrock/seisml)
 
-a continuous machine learning experimentation framework for seismic data
+a deep learning experimentation framework for seismic data.
 
-Work in progress. Goal is to have a framework for common experimentation conponents for working with seismic data.
+## Active Experiments
+* [Triggered Earthquake Detection](experiments/triggered_earthquake/README.md)
+* [Triggered Tremor Detection](experiments/triggered_tremor/README.md)
+
+## Supported Models
+* [Deep Convolutional Network](seisml/networks/convnet.py)
+* [Dialated Convolutional Network for Deep Clustering](seisml/networks/dilated_convolutional.py)
+
+## Datasets
+* [Triggered Earthquake](experiments/triggered_earthquake)
+* [Triggered Tremor](experiments/triggered_tremor)
 
 ## Repo Structure
-* `_old/`
-    - contains unused code from *Automating the Detection of Dynamically Triggered Earthquakes via a Deep Metric Learning Algorithm* paper
 * `experiments/`
     - the directory that contains code specific to a experiment utilizing seisml components.
     - This includes, model training code, inference and hyperparameter configuration 
 * `playground/`
-    - A place for experiements in progress, example code, data exploration, etc.
+    - A place for experiments in progress, example code, data exploration, etc.
 * `seisml`
     - The root directory for the framework (python package)
     * `core`
