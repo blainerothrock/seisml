@@ -1,0 +1,22 @@
+train.prefix='triggered_tremor_20hz'
+train.epochs=100
+train.learning_rate=0.0001
+train.model_dir='/home/b/.seisml/experiments/triggered_tremor/convnet'
+train.run_dir='experiments/triggered_tremor/convnet/runs'
+
+TriggeredTremor.data_dir='~/.seisml/data/triggered_tremor_20hz'
+TriggeredTremor.force_download=False
+TriggeredTremor.downloadable_data='triggered_tremor_20hz'
+
+triggered_tremor_split.training_split=0.7
+triggered_tremor_split.batch_size=64
+triggered_tremor_split.shuffle=True
+
+ConvNet.input_shape=(1, 20000)
+ConvNet.num_layers=8
+ConvNet.hidden_dims=(8, 16, 16, 16, 32, 32, 64, 64)
+ConvNet.conv_kernel=2
+ConvNet.stride=2
+ConvNet.pool_factor=2
+ConvNet.padding=1
+ConvNet.num_classes=2

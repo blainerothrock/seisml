@@ -1,16 +1,13 @@
-import os, random, shutil
+import os, shutil
 import torch
 from torch.utils.data import Dataset
 import numpy as np
 import obspy
 from enum import Enum
-from multiprocessing import cpu_count
 from seisml.utility.download_data import download_and_verify, DownloadableData, downloadable_data_path
-from seisml.utility.utils import parallel_process, save_file
 from seisml.core.transforms import Resample, \
     ButterworthPassFilter, FilterType, Compose, \
-    ToTensor, Augment, AugmentationType, TargetLength, DetrendFilter, DetrendType, \
-    Normalize
+    ToTensor, AugmentationType, TargetLength, Normalize
 import gin
 
 

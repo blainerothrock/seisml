@@ -44,8 +44,8 @@ class TestTriggeredEarthquakeTraining:
             pos_percent = int((positive_count/batch_size) * 100)
             neg_percent = int((negative_count/batch_size) * 100)
             print('pos:neg: {}:{}'.format(pos_percent, neg_percent))
-            assert pos_percent > 20, 'should have at least 1/5 class representation'
-            assert neg_percent > 20, 'should have at least 1/5 class representation'
+            assert pos_percent > 1/6*100, 'should have at least 1/5 class representation'
+            assert neg_percent > 1/6*100, 'should have at least 1/5 class representation'
 
 
         # assert negative_count + positive_count == batch_size
@@ -59,7 +59,7 @@ class TestTriggeredEarthquakeTraining:
 
         for f in files:
             data = torch.load(open(f, 'rb'))
-            label = data['label']
+            label = data['one_hot_label']
             assert sum(label) == 1, 'should be one label'
             quake = data['quake']
             print(f.split('_')[-1].split('.pt')[0], label, quake)
