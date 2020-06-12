@@ -141,7 +141,7 @@ dmypy.json
 # Pyre type checker
 .pyre/
 <<<<<<< HEAD
-/experiments/mars_insight_clustering/models/
+/experiments/mars_insight_clustering/unsupervised_clustering/models/
 =======
 /experiments/triggered_tremor/convnet/runs/
 >>>>>>> master
