@@ -46,6 +46,7 @@ def train(
     )
 
     summary(model, (1, 20000))
+    print()
 
     @trainer.on(Events.ITERATION_COMPLETED)
     def log_training_loss(trainier):

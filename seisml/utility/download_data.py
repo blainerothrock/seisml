@@ -16,15 +16,15 @@ class DownloadableData(str, Enum):
 
 def downloadable_data_path(downloadable_data):
     if downloadable_data == DownloadableData.SAMPLE_DATA:
-        return 'https://blainerothrock-public.s3.us-east-2.amazonaws.com/seisml/triggered_earthquake_sample_data.tar.gz'
+        return 'https://blainerothrock-public.s3.us-east-2.amazonaws.com/seisml/triggered_earthquake/triggered_earthquake_sample_data.tar.gz'
     if downloadable_data == DownloadableData.TRIGGERED_EARTHQUAKE:
-        return 'https://blainerothrock-public.s3.us-east-2.amazonaws.com/seisml/triggered_earthquakes.tar.gz'
+        return 'https://blainerothrock-public.s3.us-east-2.amazonaws.com/seisml/triggered_earthquake/triggered_earthquakes.tar.gz'
     if downloadable_data == DownloadableData.TRIGGERED_TREMOR_100HZ:
-        return 'https://blainerothrock-public.s3.us-east-2.amazonaws.com/seisml/triggered_tremor.tar.gz'
+        return 'https://blainerothrock-public.s3.us-east-2.amazonaws.com/seisml/triggered_tremor/triggered_tremor.tar.gz'
     if downloadable_data == DownloadableData.TRIGGERED_TREMOR_SAMPLE:
-        return 'https://blainerothrock-public.s3.us-east-2.amazonaws.com/seisml/triggered_tremor_sample.tar.gz'
+        return 'https://blainerothrock-public.s3.us-east-2.amazonaws.com/seisml/triggered_tremor/triggered_tremor_sample.tar.gz'
     if downloadable_data == DownloadableData.TRIGGERED_TREMOR_20HZ:
-        return 'https://blainerothrock-public.s3.us-east-2.amazonaws.com/seisml/triggered_tremor_20hz.tar.gz'
+        return 'https://blainerothrock-public.s3.us-east-2.amazonaws.com/seisml/triggered_tremor/triggered_tremor_20hz.tar.gz'
 
 DATA_PATH = os.path.expanduser('~/.seisml/data/')
 
