@@ -21,7 +21,7 @@ def downloadable_data_path(downloadable_data):
     if downloadable_data == DownloadableData.TRIGGERED_EARTHQUAKE:
         return 'https://blainerothrock-public.s3.us-east-2.amazonaws.com/seisml/triggered_earthquake/triggered_earthquakes.tar.gz'
     if downloadable_data == DownloadableData.MARS_INSIGHT_SAMPLE:
-        return 'https://blainerothrock-public.s3.us-east-2.amazonaws.com/seisml/mars_insight_sample.tar.gz'
+        return 'https://blainerothrock-public.s3.us-east-2.amazonaws.com/seisml/mars/mars_insight_sample.tar.gz'
     if downloadable_data == DownloadableData.TRIGGERED_TREMOR_100HZ:
         return 'https://blainerothrock-public.s3.us-east-2.amazonaws.com/seisml/triggered_tremor/triggered_tremor.tar.gz'
     if downloadable_data == DownloadableData.TRIGGERED_TREMOR_SAMPLE:
