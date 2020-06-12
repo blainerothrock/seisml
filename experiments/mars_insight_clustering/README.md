@@ -14,6 +14,18 @@ The notebook `mars_event_windowsi.ipynb` (split into scripts with `download_all_
 More notebooks related to retriveing manually labeled events can be found [here](../../playground/mars_insight_seismic). 
 
 ### Dataset (`seisml/datasets/mars_insight.py`)
-this dataset will apply a transform to each sample read from a directory of `mseed` files. For an example of using this dataset, refer to the [dataset unit test](../../tests/datasets/mars_insight_test.py). 
+this dataset will apply a transform to each sample read from a directory of `mseed` files. For an example of using this dataset, refer to the [dataset unit test](../../tests/datasets/mars_insight_test.py).
+
+## Events
+Manually events have been labeled over this dataset using traditional seismology techniques, outline in [The Sesimicity of Mars](https://www.nature.com/articles/s41561-020-0539-8). We filter these events for exploration and hosted the images with url `https://blainerothrock-public.s3.us-east-2.amazonaws.com/seisml/mars/event_images/`. To view a particular events with general event find the event Name on [Iris](http://ds.iris.edu/ds/nodes/dmc/tools/mars-events/) and append to the url, examples:
+
+#### Event Name: `S0387a`
+* `https://blainerothrock-public.s3.us-east-2.amazonaws.com/seisml/mars/event_images/S0387a.png`: Bandpass filtered from 1 to 9
+
+![event filtered](https://blainerothrock-public.s3.us-east-2.amazonaws.com/seisml/mars/event_images/S0387a.png)
+
+* `https://blainerothrock-public.s3.us-east-2.amazonaws.com/seisml/mars/event_images/S0387a_raw.png`: raw event data
+
+![event raw](https://blainerothrock-public.s3.us-east-2.amazonaws.com/seisml/mars/event_images/S0387a_raw.png)
  
 

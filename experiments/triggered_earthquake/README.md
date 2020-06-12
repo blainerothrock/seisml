@@ -78,9 +78,6 @@ python train.py
 ```shell script
 tensorboard --logdir runs
 ```
-* **TODO**: results will be posted ...
-* **TODO**: saved model will be posted ...
-* **TODO**: inference on new data ...
 
         
         
