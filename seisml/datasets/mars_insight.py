@@ -24,11 +24,11 @@ class MarsInsight(Dataset):
     :param transform: seis.core.Transform: transforms to be completed on each individial sample
     """
 
-    def __init__(self, data_dir, transform):
-        self.data_dir = data_dir
+    def __init__(self, data_dir, transform=mars_insight_transform()):
+        self.data_dir = os.path.expanduser(data_dir)
         self.transform = transform
 
-        self.files = [os.path.join(data_dir, f) for f in os.listdir(data_dir)]
+        self.files = [os.path.join(self.data_dir, f) for f in os.listdir(self.data_dir)]
 
     def __len__(self):
         return len(self.files)

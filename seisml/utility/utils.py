@@ -5,6 +5,7 @@ import os
 import json
 from seisml import networks
 import inspect
+import gin
 
 import pickle
 from scipy.signal import butter
@@ -166,6 +167,7 @@ def parallel_process(array, function, n_jobs=4, use_kwargs=False, front_num=1):
     return front + out
 
 
+@gin.configurable(blacklist=['ds'])
 def split_dataset(ds, training_split=0.7, batch_size=128, shuffle=True):
     """
     Helper to get training and testing datasets
