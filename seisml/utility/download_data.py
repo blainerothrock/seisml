@@ -10,16 +10,24 @@ class DownloadableData(str, Enum):
     SAMPLE_DATA = 'triggered_earthquake_sample_data'
     TRIGGERED_EARTHQUAKE = 'triggered_earthquakes'
     MARS_INSIGHT_SAMPLE = 'mars_insight_sample'
+    TRIGGERED_TREMOR_100HZ = 'triggered_tremor'
+    TRIGGERED_TREMOR_SAMPLE = 'triggered_tremor_sample'
+    TRIGGERED_TREMOR_20HZ = 'triggered_tremor_20hz'
 
 
 def downloadable_data_path(downloadable_data):
     if downloadable_data == DownloadableData.SAMPLE_DATA:
-        return 'https://blainerothrock-public.s3.us-east-2.amazonaws.com/seisml/triggered_earthquake_sample_data.tar.gz'
+        return 'https://blainerothrock-public.s3.us-east-2.amazonaws.com/seisml/triggered_earthquake/triggered_earthquake_sample_data.tar.gz'
     if downloadable_data == DownloadableData.TRIGGERED_EARTHQUAKE:
-        return 'https://blainerothrock-public.s3.us-east-2.amazonaws.com/seisml/triggered_earthquakes.tar.gz'
+        return 'https://blainerothrock-public.s3.us-east-2.amazonaws.com/seisml/triggered_earthquake/triggered_earthquakes.tar.gz'
     if downloadable_data == DownloadableData.MARS_INSIGHT_SAMPLE:
         return 'https://blainerothrock-public.s3.us-east-2.amazonaws.com/seisml/mars_insight_sample.tar.gz'
-
+    if downloadable_data == DownloadableData.TRIGGERED_TREMOR_100HZ:
+        return 'https://blainerothrock-public.s3.us-east-2.amazonaws.com/seisml/triggered_tremor/triggered_tremor.tar.gz'
+    if downloadable_data == DownloadableData.TRIGGERED_TREMOR_SAMPLE:
+        return 'https://blainerothrock-public.s3.us-east-2.amazonaws.com/seisml/triggered_tremor/triggered_tremor_sample.tar.gz'
+    if downloadable_data == DownloadableData.TRIGGERED_TREMOR_20HZ:
+        return 'https://blainerothrock-public.s3.us-east-2.amazonaws.com/seisml/triggered_tremor/triggered_tremor_20hz.tar.gz'
 
 DATA_PATH = os.path.expanduser('~/.seisml/data/')
 
@@ -67,3 +75,4 @@ def download_and_verify(name, download_path, force=False):
         os.remove(target_path)
 
         return os.path.join(DATA_PATH, name)
+

@@ -1,4 +1,8 @@
 .DS_Store
+<<<<<<< HEAD
+=======
+
+>>>>>>> master
 .idea/
 _old/
 runs/
@@ -136,4 +140,8 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+<<<<<<< HEAD
 /experiments/mars_insight_clustering/models/
+=======
+/experiments/triggered_tremor/convnet/runs/
+>>>>>>> master
