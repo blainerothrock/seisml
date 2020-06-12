@@ -35,7 +35,8 @@ class TestDilatedConvolutional:
             downloadable_data=DownloadableData.SAMPLE_DATA
         )
 
-        dl = DataLoader(ds, batch_size=8, num_workers=1, shuffle=True)
+        dl = DataLoader(ds, batch_size=32, num_workers=1, shuffle=True)
+        sample_batch = next(iter(dl))
 
         model = DilatedConvolutional(embedding_size=embedding_size, downsample=False)
         test_data, test_label = next(iter(dl))
@@ -48,13 +49,13 @@ class TestDilatedConvolutional:
         assert len(embedding_a[-1]) == embedding_size, 'output should match embedding size'
         _loss_a = l(embedding_a, test_label.float())
 
-        for _ in range(1):
-            for data, label in dl:
-                data = data.view(-1, 1, data.shape[-1])
-                output = model(data)
-                _loss = l(output, label.float())
-                _loss.backward()
-                opt.step()
+        for _ in range(10):
+            data, label = sample_batch
+            data = data.view(-1, 1, data.shape[-1])
+            output = model(data)
+            _loss = l(output, label.float())
+            _loss.backward()
+            opt.step()
 
         embedding_b = model(test_data)
         _loss_b = l(embedding_b, test_label.float())
