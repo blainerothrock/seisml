@@ -2,16 +2,29 @@
 ![Test](https://github.com/blainerothrock/seisml/workflows/Test/badge.svg)
 [![codecov](https://codecov.io/gh/blainerothrock/seisml/branch/master/graph/badge.svg)](https://codecov.io/gh/blainerothrock/seisml)
 
-A working repository for experiementations in machine learning in seismology.
+a deep learning experimentation framework for seismic data.
+
+## Active Experiments
+* [Triggered Earthquake Detection](experiments/triggered_earthquake/README.md)
+* [Triggered Tremor Detection](experiments/triggered_tremor/README.md)
+* [Mars Insight Seismic Data Unsupervised Clustering](experiments/mars_insight_clustering/README.md)
+
+## Supported Models
+* [Deep Convolutional Network](seisml/networks/convnet.py)
+* [Dialated Convolutional Network for Deep Clustering](seisml/networks/dilated_convolutional.py)
+* [Convolutional Auto Encoder](seisml/networks/convolutional_autoencoder.py)
+
+## Datasets
+* [Triggered Earthquake](experiments/triggered_earthquake)
+* [Triggered Tremor](experiments/triggered_tremor)
+* [Mars Insight](experiments/mars_insight_clustering)
 
 ## Repo Structure
-* `_old/`
-    - contains unused code from *Automating the Detection of Dynamically Triggered Earthquakes via a Deep Metric Learning Algorithm* paper
 * `experiments/`
     - the directory that contains code specific to a experiment utilizing seisml components.
     - This includes, model training code, inference and hyperparameter configuration 
 * `playground/`
-    - A place for experiements in progress, example code, data exploration, etc.
+    - A place for experiments in progress, example code, data exploration, etc.
 * `seisml`
     - The root directory for the framework (python package)
     * `core`
@@ -41,14 +54,6 @@ conda create env -f environment.yml
 ``` 
 * run a experiments following the `README.md` found in the specific experiment directory.
 
-## Experiemnts
-* [Triggered Earthquake](experiments/triggered_earthquke/README.md)
-    - Deep metric learning for classification of small earthquakes triggered by larger distant earthquakes
-* [Triggered Tremor](...)
-    - Deep Metric and Convolutional network for classificationing Tremors triggered by earthquakes
-* [Mars](experiments/mars_insight_clustering/README.md) **IN PROGRESS**
-   - Unsupervised clustering of seimic data from the mars insight lander. 
- 
 
 ## Inspiration 
 The inspiration and starting codebase for this model is from the Seismological Research Letters paper 
