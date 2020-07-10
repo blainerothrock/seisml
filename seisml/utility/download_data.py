@@ -3,8 +3,6 @@ import tarfile
 import requests
 import hashlib
 from enum import Enum
-from tqdm import tqdm
-
 
 class DownloadableData(str, Enum):
     SAMPLE_DATA = 'triggered_earthquake_sample_data'
