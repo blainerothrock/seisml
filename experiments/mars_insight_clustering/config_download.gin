@@ -8,11 +8,3 @@ split_availability.location='02'
 
 download_mseed.channel='BH?'
 download_mseed.data_path='~/.seisml/mars/all/raw'
-
-# prepare
-split_data.raw_dir='~/.seisml/mars/all_BH/raw'
-split_data.save_dir='~/.seisml/mars/all_BH/prepared_12-3_oct01-010'
-split_data.stride=3
-split_data.length=12
-split_data.starttime='2019-10-01T00:00:00'
-split_data.endtime='2019-10-10T23:59:59'

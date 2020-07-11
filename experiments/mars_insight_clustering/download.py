@@ -3,6 +3,8 @@ import requests
 from time import sleep
 import gin
 
+import concurrent.futures
+
 import obspy
 from obspy import read
 
@@ -48,6 +50,9 @@ def split_availability(path, network, location, channel):
 
 @gin.configurable(blacklist=['event'])
 def download_mseed(event, channel, data_path):
+
+    data_path = os.path.expanduser(data_path)
+
     try:
         os.makedirs(data_path)
     except FileExistsError:
@@ -65,7 +70,7 @@ def download_mseed(event, channel, data_path):
     req = requests.get('http://ws.ipgp.fr/fdsnws/dataselect/1/query', params=payload)
     file_name = '-'.join(
         [event['network'], event['station'], event['location'], event['startTime'], event['endTime']]) + '.mseed'
-    print('downloading: %s' % file_name)
+    print(f'{os.getpid()}: downloading: {file_name}')
     path = os.path.join(data_path, file_name)
     with open(path, 'wb') as c:
         c.write(req.content)
@@ -73,8 +78,10 @@ def download_mseed(event, channel, data_path):
 
 
 if __name__ == '__main__':
-    gin.parse_config_file('config.gin')
+    gin.parse_config_file('config_download.gin')
     download_data_availability()
     ava = split_availability()
-    for event in ava:
-        download_mseed(event)
+
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        for event in ava:
+            executor.submit(download_mseed, event)
