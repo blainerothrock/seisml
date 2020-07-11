@@ -17,6 +17,8 @@ from obspy.core import UTCDateTime
 def split_stream(file, raw_dir, starttime, endtime, save_dir, stride, length):
 
     stream = obspy.read(os.path.join(raw_dir, file))
+
+    # merge to get 3 traces (BHU, BHW, BHV), fill gaps with 0
     stream = stream.merge(method=0, fill_value=0)
 
     # only include streams with 3 channels
@@ -41,20 +43,17 @@ def split_stream(file, raw_dir, starttime, endtime, save_dir, stride, length):
 
     end = max_end if max_end < endtime else endtime
 
-    tmp_start = start
-    tmp_end = start + 12
-    while tmp_end <= end:
-        traces = []
-        for trace in stream:
-            tmp_t = trace.slice(tmp_start, tmp_end)
-            traces.append(tmp_t)
+    # trim to common start and end times
+    stream.trim(start, end)
+    splits = stream.slide(
+        window_length=length - (1/20), # offset by freq to get a even num of samples
+        step=stride,
+        include_partial_windows=False
+    )
 
-        new_st = obspy.core.Stream(traces)
-        file_path = os.path.join(save_dir, f'{str(tmp_start).replace(":", "-")}.mseed')
-        new_st.write(file_path, format='MSEED')
-
-        tmp_start = tmp_start + stride
-        tmp_end = tmp_start + length
+    for stream in splits:
+        file_path = os.path.join(save_dir, f'{str(stream[0].stats.starttime)}.mseed')
+        stream.write(file_path, format='MSEED')
 
 @gin.configurable()
 def split_data(raw_dir, save_dir, stride=3, length=12, starttime=None, endtime=None):
