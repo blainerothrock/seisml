@@ -52,8 +52,17 @@ def split_stream(file, raw_dir, starttime, endtime, save_dir, stride, length):
     )
 
     for stream in splits:
-        file_path = os.path.join(save_dir, f'{str(stream[0].stats.starttime)}.mseed')
-        stream.write(file_path, format='MSEED')
+        # confirm consistent sizing of data
+        trace_sizes = list(map(lambda x: float(len(x.data)), stream))
+        trace_channels = list(map(lambda x: x.meta.channel, stream))
+        if len(set(trace_channels)) == 3 and set(trace_sizes) and \
+                set(trace_sizes) == {length * stream[0].stats.sampling_rate}:
+
+            stream.filter('bandpass', freqmin=1.0, freqmax=8.0)
+            stream.detrend('demean')
+
+            file_path = os.path.join(save_dir, f'{str(stream[0].stats.starttime)}.mseed')
+            stream.write(file_path, format='MSEED')
 
 @gin.configurable()
 def split_data(raw_dir, save_dir, stride=3, length=12, starttime=None, endtime=None):

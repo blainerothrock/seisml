@@ -8,7 +8,6 @@ from seisml.utility.download_data import download_and_verify, DownloadableData, 
 
 def mars_insight_transform():
     transforms = [
-        DetrendFilter(detrend_type=DetrendType.DEMEAN),
         ToTensor()
     ]
 
