@@ -3,7 +3,7 @@ download_data_availability.data_path = '~/.seisml/mars/all/'
 
 split_availability.path='~/.seisml/mars/all/'
 split_availability.network='XB'
-split_availability.channel='BH'
+split_availability.channel='BHU'
 split_availability.location='02'
 
 download_mseed.channel='BH?'

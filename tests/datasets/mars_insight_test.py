@@ -12,7 +12,7 @@ class TestMarsInsight:
     def test_get_item(self):
         data_dir = download_data(DownloadableData.MARS_INSIGHT_SAMPLE)
         ds = MarsInsight(
-            data_dir=data_dir,
+            file_path=os.path.join(data_dir, 'VDS.h5'),
             transform=mars_insight_transform()
         )
         dl, _= split_dataset(ds, training_split=1.0, shuffle=True)

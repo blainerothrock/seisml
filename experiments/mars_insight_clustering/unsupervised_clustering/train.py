@@ -41,6 +41,7 @@ def train(
     loss_fn = torch.nn.MSELoss()
 
     summary(model, torch.flatten(next(iter(dl_train))[1:], start_dim=1))
+    # summary(model, next(iter(dl_train))[1:])
 
     def update_model(trainer, X):
         X = torch.flatten(X, start_dim=1)
@@ -70,7 +71,7 @@ def train(
     def log_epoch_loss(_):
         loss, _ = trainer.state.output
         writer.add_scalar('Loss/train', loss, trainer.state.epoch)
-        print("Epoch: {} Avg loss: {:.2f}"
+        print("Epoch: {} Avg loss: {:.10f}"
               .format(trainer.state.epoch, loss))
 
     trainer.run(dl_train, max_epochs=epochs)
