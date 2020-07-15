@@ -47,8 +47,6 @@ def split_stream(file, raw_dir, starttime, endtime, save_dir, stride, length):
         include_partial_windows=False
     ))
 
-    print()
-
     def acceptable(stream):
         trace_sizes = list(map(lambda x: float(len(x.data)), stream))
         trace_channels = list(map(lambda x: x.meta.channel, stream))
